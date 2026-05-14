@@ -3,7 +3,7 @@
 @php
     $bgColors = [
         'emerald' => 'bg-theme-success text-theme-text1 shadow-xl shadow-emerald-100',
-        'slate' => 'bg-theme-card border border-slate-50 shadow-md shadow-black/20 text-theme-text1',
+        'slate' => 'bg-theme-card border border-slate-50 shadow-md shadow-sm text-theme-text1',
     ];
     $titleColors = [
         'emerald' => 'text-emerald-200',
@@ -12,7 +12,7 @@
     $valueColors = [
         'emerald' => 'text-theme-text1',
         'slate' => 'text-theme-text1',
-        'red' => 'text-theme-errorText',
+        'red' => 'text-rose-600',
     ];
     $subtitleColors = [
         'emerald' => 'text-emerald-100',

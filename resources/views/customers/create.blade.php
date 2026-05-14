@@ -3,16 +3,16 @@
     <x-slot name="header">Tambah Customer Baru</x-slot>
 
     <div class="max-w-2xl mx-auto">
-        <a href="{{ route('customers.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-theme-text2 hover:text-[#06141B] transition-colors mb-6 group">
+        <a href="{{ route('customers.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-theme-text2 hover:text-white transition-colors mb-6 group">
             <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Kembali ke Data Customer
         </a>
 
         <form action="{{ route('customers.store') }}" method="POST">
             @csrf
-            <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-black/20 p-8 space-y-6">
+            <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm p-8 space-y-6">
                 <div>
-                    <h3 class="text-sm font-bold text-[#06141B] uppercase tracking-widest mb-5">Informasi Customer</h3>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-5">Informasi Customer</h3>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         {{-- Nama Toko --}}
@@ -20,7 +20,7 @@
                             <label class="text-xs font-bold text-theme-text2 uppercase tracking-wider">Nama Toko <span class="text-red-500">*</span></label>
                             <input type="text" name="nama_toko" value="{{ old('nama_toko') }}"
                                    placeholder="Contoh: Toko Sembako Berkah"
-                                   class="w-full px-4 py-3 bg-theme-bg border {{ $errors->has('nama_toko') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-[#06141B] placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all"
+                                   class="w-full px-4 py-3 bg-theme-bg border {{ $errors->has('nama_toko') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all"
                                    autofocus>
                             @error('nama_toko')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
@@ -30,7 +30,7 @@
                             <label class="text-xs font-bold text-theme-text2 uppercase tracking-wider">Nama Pemilik <span class="text-red-500">*</span></label>
                             <input type="text" name="nama_pemilik" value="{{ old('nama_pemilik') }}"
                                    placeholder="Contoh: Budi Santoso"
-                                   class="w-full px-4 py-3 bg-theme-bg border {{ $errors->has('nama_pemilik') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-[#06141B] placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all">
+                                   class="w-full px-4 py-3 bg-theme-bg border {{ $errors->has('nama_pemilik') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all">
                             @error('nama_pemilik')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
 
@@ -43,7 +43,7 @@
                                 </span>
                                 <input type="text" name="no_whatsapp" value="{{ old('no_whatsapp') }}"
                                        placeholder="08xxxxxxxxxx"
-                                       class="w-full pl-10 pr-4 py-3 bg-theme-bg border {{ $errors->has('no_whatsapp') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-[#06141B] placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all">
+                                       class="w-full pl-10 pr-4 py-3 bg-theme-bg border {{ $errors->has('no_whatsapp') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all">
                             </div>
                             @error('no_whatsapp')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
@@ -53,7 +53,7 @@
                             <label class="text-xs font-bold text-theme-text2 uppercase tracking-wider">Alamat Pasar</label>
                             <textarea name="alamat_pasar" rows="3"
                                       placeholder="Contoh: Pasar Induk Caringin Blok B-12"
-                                      class="w-full px-4 py-3 bg-theme-bg border {{ $errors->has('alamat_pasar') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-[#06141B] placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all resize-none">{{ old('alamat_pasar') }}</textarea>
+                                      class="w-full px-4 py-3 bg-theme-bg border {{ $errors->has('alamat_pasar') ? 'border-red-400' : 'border-theme-border' }} rounded-xl text-sm font-medium text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success outline-none transition-all resize-none">{{ old('alamat_pasar') }}</textarea>
                             @error('alamat_pasar')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
@@ -61,7 +61,7 @@
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-theme-border">
                     <a href="{{ route('customers.index') }}" class="px-6 py-2.5 bg-theme-sidebar text-theme-text1 text-sm font-semibold rounded-xl hover:bg-theme-border transition-colors">Batal</a>
-                    <button type="submit" class="px-8 py-2.5 bg-[#06141B] hover:bg-[#11212D] text-theme-text1 text-sm font-bold rounded-xl shadow-lg transition-all hover:-translate-y-0.5">
+                    <button type="submit" class="px-8 py-2.5 bg-slate-100 hover:bg-theme-card text-theme-text1 text-sm font-bold rounded-xl shadow-lg transition-all hover:-translate-y-0.5">
                         Simpan Customer
                     </button>
                 </div>

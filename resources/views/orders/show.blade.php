@@ -5,13 +5,13 @@
     <div class="space-y-8 max-w-5xl mx-auto">
         <!-- Header Actions -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
-            <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-[#9BA8AB] hover:text-[#CCD0CF] transition-colors group">
+            <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-theme-text1 transition-colors group">
                 <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 <span>Kembali ke Daftar</span>
             </a>
             
             <div class="flex items-center gap-3">
-                <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#CCD0CF] hover:bg-theme-card text-[#06141B] text-sm font-bold rounded-xl transition-all shadow-lg">
+                <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-theme-primary hover:bg-theme-card text-white text-sm font-bold rounded-xl transition-all shadow-lg">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Print Transaksi</span>
                 </button>
@@ -19,16 +19,16 @@
         </div>
 
         <!-- Nota Card -->
-        <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-black/20 overflow-hidden p-10 print:shadow-none print:border-none print:p-0">
+        <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm overflow-hidden p-10 print:shadow-none print:border-none print:p-0">
             <!-- Header -->
             <div class="flex justify-between items-start border-b-2 border-theme-border pb-6 mb-8">
                 <div>
-                    <h2 class="text-3xl font-black text-[#06141B] uppercase tracking-widest">TRANSAKSI PESANAN</h2>
-                    <p class="text-lg font-bold text-[#4A5C6A] mt-1">#{{ $order->order_number }}</p>
+                    <h2 class="text-3xl font-black text-white uppercase tracking-widest">TRANSAKSI PESANAN</h2>
+                    <p class="text-lg font-bold text-slate-400 mt-1">#{{ $order->order_number }}</p>
                 </div>
                 <div class="text-right">
                     <p class="text-sm font-bold text-theme-text2 uppercase tracking-widest">Tanggal</p>
-                    <p class="text-base font-bold text-[#06141B]">{{ $order->order_date->format('d F Y') }}</p>
+                    <p class="text-base font-bold text-white">{{ $order->order_date->format('d F Y') }}</p>
                 </div>
             </div>
 
@@ -37,7 +37,7 @@
                 <div>
                     <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-3">Customer</p>
                     <div class="p-5 bg-theme-bg rounded-2xl border border-theme-border">
-                        <p class="text-xl font-black text-[#06141B]">{{ $order->customer->nama_toko }}</p>
+                        <p class="text-xl font-black text-white">{{ $order->customer->nama_toko }}</p>
                         <p class="text-sm font-semibold text-theme-text1 mt-2 flex items-center gap-2">
                             <svg class="w-4 h-4 text-theme-text2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             {{ $order->customer->nama_pemilik }}
@@ -56,7 +56,7 @@
                 </div>
                 <div class="text-right flex flex-col justify-end">
                     <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-3">Admin Penerbit</p>
-                    <p class="text-sm font-bold text-[#06141B]">{{ $order->createdBy->name }}</p>
+                    <p class="text-sm font-bold text-white">{{ $order->createdBy->name }}</p>
                 </div>
             </div>
 
@@ -73,13 +73,13 @@
                         @foreach($order->items as $item)
                             <tr>
                                 <td class="px-5 py-5">
-                                    <div class="text-sm font-bold text-[#06141B]">{{ $item->product_name }}</div>
+                                    <div class="text-sm font-bold text-white">{{ $item->product_name }}</div>
                                     @if($item->notes)
                                         <div class="text-[11px] text-theme-text2 mt-1 italic">{{ $item->notes }}</div>
                                     @endif
                                 </td>
                                 <td class="px-5 py-5 text-right">
-                                    <span class="text-sm font-bold text-theme-text1">{{ $item->quantity }}</span>
+                                    <span class="text-sm font-bold text-theme-text1">{{ floatval($item->quantity) }}</span>
                                     <span class="text-[11px] font-medium text-theme-text2 ml-1">{{ $item->product_unit }}</span>
                                 </td>
                             </tr>
@@ -89,7 +89,7 @@
                         <tr>
                             <td class="px-5 py-6 text-right text-xs font-black text-theme-text2 uppercase tracking-widest">Total Produk</td>
                             <td class="px-5 py-6 text-right">
-                                <div class="text-2xl font-black text-[#06141B]">{{ $order->items->sum('quantity') }}</div>
+                                <div class="text-2xl font-black text-white">{{ floatval($order->items->sum('quantity')) }}</div>
                             </td>
                         </tr>
                     </tfoot>

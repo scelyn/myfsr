@@ -3,35 +3,39 @@
     <x-slot name="header">Catat Cicilan / Pelunasan</x-slot>
 
     <div class="max-w-3xl mx-auto">
-        <a href="{{ route('receivables.show', $receivable) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-theme-successText transition-colors mb-6 group">
+        <a href="{{ route('receivables.show', $receivable) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-emerald-600 transition-colors mb-6 group">
             <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             <span>Kembali ke Detail Piutang</span>
         </a>
 
-        <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-black/20 overflow-hidden">
+        <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-sm overflow-hidden">
+            @php
+                $totalPiutang = $receivable->invoice->customer->invoices()->where('status', '!=', 'paid')->sum('remaining_amount');
+            @endphp
             <div class="p-8 bg-theme-bg/50 border-b border-theme-border flex justify-between items-center">
                 <div>
-                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Membayar Untuk</p>
-                    <h3 class="text-xl font-black text-theme-text1">{{ $receivable->invoice->invoice_number }}</h3>
+                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Membayar Untuk Customer</p>
+                    <h3 class="text-xl font-black text-theme-text1">{{ $receivable->invoice->customer->nama_toko }}</h3>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Sisa Tagihan</p>
-                    <div class="text-2xl font-black text-theme-successText">Rp {{ number_format($receivable->remaining_amount, 0, ',', '.') }}</div>
+                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Total Seluruh Piutang</p>
+                    <div class="text-2xl font-black text-emerald-600">Rp {{ number_format($totalPiutang, 0, ',', '.') }}</div>
                 </div>
             </div>
 
             <form action="{{ route('payments.store') }}" method="POST" class="p-8 space-y-6">
                 @csrf
-                <input type="hidden" name="receivable_id" value="{{ $receivable->id }}">
+                <input type="hidden" name="invoice_id" value="{{ $receivable->invoice->id }}">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label class="text-xs font-black text-theme-text2 uppercase tracking-widest">Jumlah Bayar <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-4 flex items-center text-theme-text2 font-black text-sm">Rp</span>
-                            <input type="number" name="amount" value="{{ old('amount', $receivable->remaining_amount) }}" max="{{ $receivable->remaining_amount }}" 
+                            <input type="number" name="amount" value="{{ old('amount', $totalPiutang) }}" max="{{ $totalPiutang }}" 
                                 class="w-full pl-12 pr-4 py-4 bg-theme-bg border border-theme-border rounded-2xl text-xl font-black text-theme-text1 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all" required>
                         </div>
+                        <p class="text-[10px] font-bold text-theme-text2 mt-2">Sistem otomatis mengalokasikan pembayaran ke nota terlama (FIFO).</p>
                     </div>
 
                     <div class="space-y-2">

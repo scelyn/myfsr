@@ -24,7 +24,7 @@ class ReportController extends Controller
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
         
         $rekaps = $this->reportService->getSupplierRekap($date);
-        $summary = $this->reportService->getDailySummary($date);
+        $summary = $this->reportService->getDailySummary($date, $rekaps);
 
         return view('reports.supplier', compact('rekaps', 'summary', 'date'));
     }
@@ -32,7 +32,7 @@ class ReportController extends Controller
     {
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
         $rekaps = $this->reportService->getSupplierRekap($date);
-        $summary = $this->reportService->getDailySummary($date);
+        $summary = $this->reportService->getDailySummary($date, $rekaps);
 
         if ($rekaps->isEmpty()) {
             return back()->with('error', 'Tidak ada data pesanan untuk tanggal ini.');
@@ -69,14 +69,16 @@ class ReportController extends Controller
         
         $invoices = $query->latest('id')->paginate(15)->withQueryString();
         
-        $summary = [
-            'total_transaksi' => Invoice::count(),
-            'total_omzet' => Invoice::sum('total_amount'),
-            'total_piutang' => Invoice::sum('remaining_amount'),
-            'total_lunas' => Invoice::where('status', 'paid')->count(),
-        ];
+        $summary = \Illuminate\Support\Facades\Cache::remember('transactions_summary', 300, function () {
+            return [
+                'total_transaksi' => Invoice::count(),
+                'total_omzet' => Invoice::sum('total_amount'),
+                'total_piutang' => Invoice::sum('remaining_amount'),
+                'total_lunas' => Invoice::where('status', 'paid')->count(),
+            ];
+        });
         
-        $customers = Customer::orderBy('nama_toko')->get();
+        $customers = Customer::select('id', 'nama_toko')->orderBy('nama_toko')->get();
         
         return view('reports.transactions', compact('invoices', 'summary', 'customers'));
     }

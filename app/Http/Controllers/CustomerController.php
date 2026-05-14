@@ -96,12 +96,13 @@ class CustomerController extends Controller
      */
     public function getPiutang(Customer $customer)
     {
-        $invoices = \App\Models\Invoice::where('customer_id', $customer->id)
-            ->where('status', '!=', 'paid')
-            ->get();
+        $baseQuery = \App\Models\Invoice::where('customer_id', $customer->id)
+            ->where('status', '!=', 'paid');
             
-        $totalPiutang = $invoices->sum('remaining_amount');
-        $unpaidCount = $invoices->count();
+        $totalPiutang = $baseQuery->sum('remaining_amount');
+        $unpaidCount = $baseQuery->count();
+        
+        $invoices = $baseQuery->select('invoice_number', 'remaining_amount', 'invoice_date')->get();
         
         $histori = $invoices->map(function($inv) {
             return [

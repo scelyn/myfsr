@@ -2,12 +2,12 @@
 
 @php
 $classes = ($active ?? false)
-            ? 'flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-[#F8FAFC] bg-[#253745] rounded-xl transition-all duration-200 group shadow-sm'
-            : 'flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#9BA8AB] hover:text-[#F8FAFC] hover:bg-white/5 rounded-xl transition-all duration-200 group';
+            ? 'flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-[#F8FAFC] bg-slate-100 rounded-xl transition-all duration-200 group shadow-sm'
+            : 'flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-theme-text2 hover:text-[#F8FAFC] hover:bg-white/5 rounded-xl transition-all duration-200 group';
 
 $iconClasses = ($active ?? false)
             ? 'w-5 h-5 text-[#F8FAFC] opacity-100'
-            : 'w-5 h-5 text-[#9BA8AB] opacity-70 group-hover:opacity-100 transition-opacity duration-200';
+            : 'w-5 h-5 text-theme-text2 opacity-70 group-hover:opacity-100 transition-opacity duration-200';
 @endphp
 
 <a {{ $attributes->merge(['class' => $classes]) }} :title="sidebarCollapsed ? '{{ addslashes(trim($slot)) }}' : ''" :class="sidebarCollapsed ? 'lg:justify-center' : ''">

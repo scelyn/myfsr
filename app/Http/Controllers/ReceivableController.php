@@ -21,14 +21,15 @@ class ReceivableController extends Controller
         }
 
         $receivables = $query->paginate(15)->withQueryString();
-        $customers = Customer::orderBy('nama_toko')->get();
-
-        // Summary Stats
-        $stats = [
-            'total_outstanding' => Receivable::where('status', '!=', 'paid')->sum('remaining_amount'),
-            'total_overdue' => Receivable::where('status', '!=', 'paid')->where('due_date', '<', now())->sum('remaining_amount'),
-            'count_unpaid' => Receivable::where('status', 'unpaid')->count(),
-        ];
+        $customers = Customer::select('id', 'nama_toko')->orderBy('nama_toko')->get();
+        
+        $stats = \Illuminate\Support\Facades\Cache::remember('receivable_stats', 300, function () {
+            return [
+                'total_outstanding' => Receivable::where('status', '!=', 'paid')->sum('remaining_amount'),
+                'total_overdue' => Receivable::where('status', '!=', 'paid')->where('due_date', '<', now())->sum('remaining_amount'),
+                'count_unpaid' => Receivable::where('status', 'unpaid')->count(),
+            ];
+        });
 
         return view('receivables.index', compact('receivables', 'customers', 'stats'));
     }

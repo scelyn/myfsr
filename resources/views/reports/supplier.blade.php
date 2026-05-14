@@ -24,12 +24,11 @@
             
             <div class="flex items-center gap-3">
                 @php
-                    $waText = "Halo Supplier,\n\nBerikut rekap pesanan tanggal *" . \Carbon\Carbon::parse($date)->format('d M Y') . "*:\n\n";
+                    $waText = "Halo Supplier,\n\nBerikut rekap pesanan hari ini:\n\n";
                     foreach($rekaps as $rekap) {
-                        $waText .= "- " . $rekap->product_name . ": *" . $rekap->total_qty . " " . $rekap->product_unit . "*\n";
+                        $waText .= "- " . $rekap->product_name . " : " . floatval($rekap->total_qty) . " " . $rekap->product_unit . "\n";
                     }
-                    $waText .= "\nTotal Nominal Modal: *Rp " . number_format($summary->total_modal ?? 0, 0, ',', '.') . "*\n";
-                    $waText .= "\nMohon segera disiapkan. Terima kasih.";
+                    $waText .= "\nTerima kasih.";
                     $waUrl = "https://wa.me/?text=" . urlencode($waText);
                 @endphp
                 
@@ -83,13 +82,11 @@
             <!-- Table content -->
             <div class="overflow-x-auto print:overflow-visible">
                 <table class="w-full text-left">
-                    <thead class="bg-theme-bg/50 border-y-2 border-theme-border">
+                    <thead class="bg-theme-bg/50 border-y-2 border-theme-border sticky top-0 z-10">
                         <tr>
                             <th class="px-10 py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest w-16 text-center print:px-4">No</th>
                             <th class="px-6 py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest print:px-2">Nama Barang</th>
-                            <th class="px-6 py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-center print:px-2">Total Qty</th>
-                            <th class="px-6 py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-right print:px-2">HPP / Unit</th>
-                            <th class="px-10 py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-right print:px-4">Total Modal</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-center print:px-2">Qty</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -100,14 +97,8 @@
                                     <div class="text-sm font-black text-[#06141B]">{{ $rekap->product_name }}</div>
                                 </td>
                                 <td class="px-6 py-5 text-center print:px-2">
-                                    <span class="text-sm font-black text-[#06141B]">{{ $rekap->total_qty }}</span>
+                                    <span class="text-sm font-black text-[#06141B]">{{ floatval($rekap->total_qty) }}</span>
                                     <span class="text-[10px] font-bold text-theme-text2 ml-1 uppercase">{{ $rekap->product_unit }}</span>
-                                </td>
-                                <td class="px-6 py-5 text-right print:px-2">
-                                    <div class="text-xs font-semibold text-theme-text2">Rp {{ number_format($rekap->estimated_base_price, 0, ',', '.') }}</div>
-                                </td>
-                                <td class="px-10 py-5 text-right print:px-4">
-                                    <div class="text-sm font-black text-[#06141B]">Rp {{ number_format($rekap->total_modal, 0, ',', '.') }}</div>
                                 </td>
                             </tr>
                         @empty
@@ -121,31 +112,7 @@
                 </table>
             </div>
 
-            <!-- Summary Footers -->
-            @if($summary && $summary->total_transaksi > 0)
-            <div class="px-10 py-8 bg-theme-bg/50 border-t-2 border-[#06141B] print:px-0">
-                <div class="flex justify-end">
-                    <div class="w-80 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-theme-text2 uppercase tracking-widest">Total Transaksi</span>
-                            <span class="text-sm font-black text-[#06141B]">{{ $summary->total_transaksi }} Nota</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-theme-text2 uppercase tracking-widest">Total Qty Item</span>
-                            <span class="text-sm font-bold text-theme-text1">{{ number_format($summary->total_qty, 0, ',', '.') }} Produk</span>
-                        </div>
-                        <div class="flex items-center justify-between pb-4 border-b border-theme-border">
-                            <span class="text-xs font-bold text-theme-text2 uppercase tracking-widest">Estimasi Laba</span>
-                            <span class="text-sm font-bold text-theme-successText">Rp {{ number_format($summary->total_laba, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex items-center justify-between pt-2">
-                            <span class="text-xs font-black text-[#06141B] uppercase tracking-widest">Total Modal Supplier</span>
-                            <span class="text-2xl font-black text-[#06141B]">Rp {{ number_format($summary->total_modal, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
+
         </div>
     </div>
 

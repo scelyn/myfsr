@@ -13,13 +13,15 @@ class DashboardService extends BaseService
 {
     public function getDashboardData()
     {
-        return [
-            'stats' => $this->getCoreStats(),
-            'topProducts' => $this->getTopProducts(),
-            'monthlySales' => $this->getMonthlySales(),
-            'recentOrders' => $this->getRecentOrders(),
-            'recentPayments' => $this->getRecentPayments(),
-        ];
+        return Cache::remember('dashboard_data', 300, function () {
+            return [
+                'stats' => $this->getCoreStats(),
+                'topProducts' => $this->getTopProducts(),
+                'monthlySales' => $this->getMonthlySales(),
+                'recentOrders' => $this->getRecentOrders(),
+                'recentPayments' => $this->getRecentPayments(),
+            ];
+        });
     }
 
     private function getCoreStats()

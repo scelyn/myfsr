@@ -15,7 +15,7 @@
              x-transition:leave-end="opacity-0"
              class="fixed top-6 right-6 z-50 flex items-center gap-3 bg-theme-card border border-theme-success shadow-2xl shadow-emerald-100/50 px-5 py-4 rounded-2xl">
             <div class="w-8 h-8 bg-theme-success/40 rounded-xl flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4 text-theme-successText" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
             </div>
             <p class="text-sm font-semibold text-theme-text1">{{ session('success') }}</p>
             <button @click="show = false" class="ml-2 text-slate-300 hover:text-theme-text2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
@@ -27,17 +27,17 @@
             <form action="{{ route('products.index') }}" method="GET" class="relative w-full sm:w-80">
                 <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-text2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama barang..."
-                    class="w-full pl-10 pr-4 py-2.5 bg-theme-card border border-theme-border rounded-xl text-sm text-theme-text1 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success shadow-md shadow-black/20 transition-all outline-none">
+                    class="w-full pl-10 pr-4 py-2.5 bg-theme-card border border-theme-border rounded-xl text-sm text-theme-text1 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-theme-success shadow-md shadow-sm transition-all outline-none">
             </form>
             <a href="{{ route('products.create') }}"
-               class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#06141B] hover:bg-[#11212D] text-theme-text1 text-sm font-semibold rounded-xl shadow-lg transition-all hover:-translate-y-0.5 shrink-0">
+               class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-theme-card text-theme-text1 text-sm font-semibold rounded-xl shadow-lg transition-all hover:-translate-y-0.5 shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Tambah Barang
             </a>
         </div>
 
         {{-- Table Card --}}
-        <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-black/20 overflow-hidden">
+        <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead>
@@ -54,15 +54,15 @@
                         @forelse($products as $product)
                             <tr class="hover:bg-theme-bg/60 transition-colors group">
                                 <td class="px-6 py-4">
-                                    <div class="font-semibold text-[#06141B]">{{ $product->nama_barang }}</div>
+                                    <div class="font-semibold text-white">{{ $product->nama_barang }}</div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2.5 py-1 bg-[#253745]/10 text-[#253745] text-[11px] font-bold rounded-lg uppercase tracking-wider">{{ $product->satuan }}</span>
+                                    <span class="px-2.5 py-1 bg-slate-100/10 text-[#253745] text-[11px] font-bold rounded-lg uppercase tracking-wider">{{ $product->satuan }}</span>
                                 </td>
-                                <td class="px-6 py-4 text-[#4A5C6A] font-medium">
+                                <td class="px-6 py-4 text-slate-400 font-medium">
                                     Rp {{ number_format($product->harga_beli_default, 0, ',', '.') }}
                                 </td>
-                                <td class="px-6 py-4 font-bold text-theme-successText">
+                                <td class="px-6 py-4 font-bold text-emerald-600">
                                     + Rp {{ number_format($product->margin_default, 0, ',', '.') }}
                                 </td>
                                 <td class="px-6 py-4 font-black text-[#11212D]">
@@ -90,7 +90,7 @@
                                             <svg class="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
                                         </div>
                                         <p class="text-sm font-medium text-theme-text2">Belum ada barang di Master Data.</p>
-                                        <a href="{{ route('products.create') }}" class="text-sm font-semibold text-theme-successText hover:underline">+ Tambah barang baru</a>
+                                        <a href="{{ route('products.create') }}" class="text-sm font-semibold text-emerald-600 hover:underline">+ Tambah barang baru</a>
                                     </div>
                                 </td>
                             </tr>
@@ -118,9 +118,9 @@
                  x-transition:enter-start="opacity-0 scale-95"
                  x-transition:enter-end="opacity-100 scale-100">
                 <div class="w-12 h-12 bg-theme-error/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-6 h-6 text-theme-errorText" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
-                <h3 class="text-lg font-bold text-center text-[#06141B] mb-1">Hapus Barang?</h3>
+                <h3 class="text-lg font-bold text-center text-white mb-1">Hapus Barang?</h3>
                 <p class="text-sm text-center text-theme-text2 mb-6">Barang <strong x-text="deleteName" class="text-theme-text1"></strong> akan dihapus secara permanen.</p>
                 <div class="flex gap-3">
                     <button @click="showDeleteModal = false"

@@ -11,8 +11,8 @@
 
         @if (session('status'))
             <div class="mb-5 p-3 bg-theme-success/200/10 border border-emerald-500/20 rounded-xl flex items-center gap-2">
-                <svg class="w-4 h-4 text-theme-successText shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
-                <span class="text-sm text-theme-successText">{{ session('status') }}</span>
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
+                <span class="text-sm text-emerald-600">{{ session('status') }}</span>
             </div>
         @endif
 
@@ -28,7 +28,7 @@
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="admin@MyFSR.com"
                         class="w-full pl-10 pr-4 py-2.5 bg-slate-800/60 border {{ $errors->has('email') ? 'border-red-500/60' : 'border-slate-700/60' }} rounded-xl text-theme-text1 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all duration-200">
                 </div>
-                @error('email')<p class="mt-1.5 text-xs text-theme-errorText">{{ $message }}</p>@enderror
+                @error('email')<p class="mt-1.5 text-xs text-rose-600">{{ $message }}</p>@enderror
             </div>
 
             {{-- Password --}}
@@ -41,7 +41,7 @@
                     <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="••••••••"
                         class="w-full pl-10 pr-4 py-2.5 bg-slate-800/60 border {{ $errors->has('password') ? 'border-red-500/60' : 'border-slate-700/60' }} rounded-xl text-theme-text1 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all duration-200">
                 </div>
-                @error('password')<p class="mt-1.5 text-xs text-theme-errorText">{{ $message }}</p>@enderror
+                @error('password')<p class="mt-1.5 text-xs text-rose-600">{{ $message }}</p>@enderror
             </div>
 
             {{-- Remember --}}

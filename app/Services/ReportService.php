@@ -38,9 +38,9 @@ class ReportService extends BaseService
     /**
      * Get summary for a specific date
      */
-    public function getDailySummary(string $date)
+    public function getDailySummary(string $date, $rekaps = null)
     {
-        $rekap = $this->getSupplierRekap($date);
+        $rekap = $rekaps ?? $this->getSupplierRekap($date);
         $totalTransaksi = Order::whereDate('order_date', $date)->count();
 
         return (object) [

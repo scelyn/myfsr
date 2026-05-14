@@ -4,7 +4,7 @@
 
     <div class="max-w-6xl mx-auto space-y-8">
         <div class="flex items-center justify-between">
-            <a href="{{ route('receivables.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-theme-successText transition-colors group">
+            <a href="{{ route('receivables.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-emerald-600 transition-colors group">
                 <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 <span>Kembali ke Daftar Piutang</span>
             </a>
@@ -20,7 +20,7 @@
             <!-- Left: Info & Items -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- Invoice Info -->
-                <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-black/20 p-8">
+                <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-sm p-8">
                     <div class="flex justify-between items-start mb-8">
                         <div>
                             <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Nomor Invoice</p>
@@ -30,9 +30,9 @@
                             <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Status Tagihan</p>
                             <div class="mt-1">
                                 @if($receivable->status === 'paid')
-                                    <span class="px-4 py-1.5 bg-theme-success/40 text-theme-successText text-xs font-black rounded-full uppercase tracking-widest">LUNAS</span>
+                                    <span class="px-4 py-1.5 bg-theme-success/40 text-emerald-600 text-xs font-black rounded-full uppercase tracking-widest">LUNAS</span>
                                 @else
-                                    <span class="px-4 py-1.5 bg-theme-error/40 text-theme-errorText text-xs font-black rounded-full uppercase tracking-widest">BELUM LUNAS</span>
+                                    <span class="px-4 py-1.5 bg-theme-error/40 text-rose-600 text-xs font-black rounded-full uppercase tracking-widest">BELUM LUNAS</span>
                                 @endif
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Payment History -->
-                <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-black/20 overflow-hidden">
+                <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-sm overflow-hidden">
                     <div class="px-8 py-6 border-b border-slate-50 bg-theme-bg/30 flex items-center justify-between">
                         <h3 class="text-lg font-bold text-theme-text1">Histori Pembayaran</h3>
                         <span class="text-xs font-bold text-theme-text2 uppercase tracking-widest">{{ $receivable->payments->count() }} Transaksi</span>
@@ -82,7 +82,7 @@
                                         <td class="px-8 py-4">
                                             <span class="px-3 py-1 bg-theme-sidebar text-theme-text2 text-[10px] font-bold rounded-full uppercase tracking-widest">{{ $payment->payment_method }}</span>
                                         </td>
-                                        <td class="px-8 py-4 text-right font-black text-theme-successText">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                                        <td class="px-8 py-4 text-right font-black text-emerald-600">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="4" class="px-8 py-10 text-center text-theme-text2 italic">Belum ada cicilan pembayaran.</td></tr>
@@ -102,7 +102,7 @@
                     <div class="mt-8 pt-8 border-t border-white/10 space-y-4">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-theme-text2">Sudah Terbayar</span>
-                            <span class="font-bold text-theme-successText">Rp {{ number_format($receivable->payments->sum('amount'), 0, ',', '.') }}</span>
+                            <span class="font-bold text-emerald-600">Rp {{ number_format($receivable->payments->sum('amount'), 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center pt-4">
                             <span class="text-xs font-black uppercase tracking-widest">Sisa Piutang</span>

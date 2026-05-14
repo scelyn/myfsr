@@ -27,9 +27,15 @@ class CustomerPaymentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $this->paymentService->recordPayment($request->all());
+        try {
+            $this->paymentService->recordPayment($request->all());
 
-        return redirect()->route('invoices.show', $request->invoice_id)
-            ->with('success', 'Pembayaran berhasil dicatat.');
+            return redirect()->route('invoices.show', $request->invoice_id)
+                ->with('success', 'Pembayaran berhasil dialokasikan secara otomatis.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage())
+                ->withInput();
+        }
     }
 }
