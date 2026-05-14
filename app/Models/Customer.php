@@ -12,21 +12,13 @@ class Customer extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'code',
-        'name',
-        'phone',
-        'whatsapp',
-        'address',
-        'customer_type',
-        'credit_limit',
-        'is_active',
-        'notes',
+        'nama_toko',
+        'nama_pemilik',
+        'no_whatsapp',
+        'alamat_pasar',
     ];
 
-    protected $casts = [
-        'is_active'    => 'boolean',
-        'credit_limit' => 'decimal:2',
-    ];
+    protected $casts = [];
 
     // ─── Relationships ─────────────────────────────────────────────────────────
 
@@ -52,9 +44,18 @@ class Customer extends Model
 
     // ─── Scopes ────────────────────────────────────────────────────────────────
 
+    /** Simple scope for search */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->whereNotNull('id');
+    }
+
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('nama_toko', 'like', "%{$term}%")
+              ->orWhere('nama_pemilik', 'like', "%{$term}%");
+        });
     }
 
     // ─── Accessors (Smart Profit Estimation - Receivable Risk) ─────────────────
@@ -62,23 +63,29 @@ class Customer extends Model
     /** Total piutang belum lunas */
     public function getTotalReceivableAttribute(): float
     {
-        return $this->receivables()
-            ->whereIn('status', ['outstanding', 'partial'])
+        return (float) $this->receivables()
+            ->whereIn('status', ['unpaid', 'partial'])
             ->sum('remaining_amount');
     }
 
-    /** Apakah melebihi credit limit */
-    public function getIsOverCreditLimitAttribute(): bool
+    /** Total Transaksi (Total Order Selesai) */
+    public function getTotalTransactionsAttribute(): float
     {
-        return $this->total_receivable > $this->credit_limit;
+        return (float) $this->orders()->sum('total_amount');
     }
 
     /** Risk level customer berdasarkan piutang tertua */
     public function getReceivableRiskLevelAttribute(): string
     {
-        $maxDaysOverdue = $this->receivables()
-            ->whereIn('status', ['outstanding', 'partial'])
-            ->max('days_overdue') ?? 0;
+        $oldestReceivable = $this->receivables()
+            ->whereIn('status', ['unpaid', 'partial'])
+            ->where('due_date', '<', now())
+            ->orderBy('due_date', 'asc')
+            ->first();
+
+        if (!$oldestReceivable) return 'low';
+
+        $maxDaysOverdue = $oldestReceivable->days_overdue;
 
         return match (true) {
             $maxDaysOverdue > 60  => 'critical',

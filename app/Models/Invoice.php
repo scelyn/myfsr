@@ -17,26 +17,18 @@ class Invoice extends Model
         'invoice_number',
         'order_id',
         'customer_id',
-        'created_by',
         'status',
         'invoice_date',
         'due_date',
-        'subtotal',
-        'discount_amount',
-        'tax_amount',
         'total_amount',
         'paid_amount',
         'remaining_amount',
         'notes',
-        'terms_and_conditions',
     ];
 
     protected $casts = [
         'invoice_date'    => 'date',
         'due_date'        => 'date',
-        'subtotal'        => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'tax_amount'      => 'decimal:2',
         'total_amount'    => 'decimal:2',
         'paid_amount'     => 'decimal:2',
         'remaining_amount' => 'decimal:2',
@@ -54,15 +46,9 @@ class Invoice extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function createdBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
 
-    public function items(): HasMany
-    {
-        return $this->hasMany(InvoiceItem::class);
-    }
+
+
 
     public function payments(): HasMany
     {

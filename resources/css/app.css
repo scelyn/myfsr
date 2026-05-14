@@ -1,3 +1,79 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* Override default select backgrounds */
+  select {
+    background-color: #06141B !important;
+    color: #CCD0CF !important;
+  }
+  select option {
+    background-color: #11212D;
+    color: #CCD0CF;
+  }
+  input, textarea {
+    color: #CCD0CF !important;
+  }
+  input::placeholder, textarea::placeholder {
+    color: #4A5C6A !important;
+  }
+}
+
+/* TomSelect Dark Theme Fixes */
+.ts-control, .ts-control input, .ts-dropdown {
+    color: #CCD0CF !important;
+    background-color: #06141B !important;
+    border-color: #4A5C6A !important;
+}
+.ts-dropdown .option {
+    color: #9BA8AB;
+}
+.ts-dropdown .option:hover, .ts-dropdown .active {
+    background-color: #253745 !important;
+    color: #CCD0CF !important;
+}
+.ts-control {
+    border-radius: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+}
+.ts-dropdown {
+    border-radius: 0.75rem !important;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+.item {
+    background-color: #253745 !important;
+    color: #CCD0CF !important;
+    border: 1px solid #4A5C6A !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Print Styles */
+@media print {
+    body.print-a4 { @page { size: A4; margin: 20mm; } }
+    body.print-letter { @page { size: letter; margin: 20mm; } }
+    body.print-thermal58 { @page { size: 58mm auto; margin: 0; } }
+    body.print-thermal80 { @page { size: 80mm auto; margin: 0; } }
+
+    body.print-thermal58 .max-w-4xl, body.print-thermal80 .max-w-4xl {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 10px !important;
+    }
+    
+    body.print-thermal58 * {
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+    }
+    
+    body.print-thermal80 * {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Remove padding/borders for thermal */
+    body.print-thermal58 .p-12, body.print-thermal80 .p-12 {
+        padding: 0 !important;
+    }
+}

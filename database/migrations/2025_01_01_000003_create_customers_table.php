@@ -10,21 +10,15 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 20)->unique()->comment('Kode unik customer, contoh: CUST-001');
-            $table->string('name', 150);
-            $table->string('phone', 20)->nullable();
-            $table->string('whatsapp', 20)->nullable();
-            $table->text('address')->nullable();
-            $table->enum('customer_type', ['retail', 'wholesaler', 'regular'])->default('regular');
-            $table->decimal('credit_limit', 15, 2)->default(0)->comment('Batas piutang yang diizinkan');
-            $table->boolean('is_active')->default(true);
-            $table->text('notes')->nullable();
+            $table->string('nama_toko', 150);
+            $table->string('nama_pemilik', 150);
+            $table->string('no_whatsapp', 20);
+            $table->text('alamat_pasar')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('is_active');
-            $table->index('customer_type');
-            $table->index('code');
+            $table->index('nama_toko');
+            $table->index('nama_pemilik');
         });
     }
 
