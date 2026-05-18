@@ -37,9 +37,15 @@ class Customer extends Model
         return $this->hasMany(CustomerPayment::class);
     }
 
-    public function receivables(): HasMany
+    /**
+     * Outstanding invoices (replaces receivables relationship).
+     * Returns invoices that still have remaining balance.
+     */
+    public function outstandingInvoices(): HasMany
     {
-        return $this->hasMany(Receivable::class);
+        return $this->hasMany(Invoice::class)
+            ->whereIn('status', ['unpaid', 'partial'])
+            ->where('remaining_amount', '>', 0);
     }
 
     // ─── Scopes ────────────────────────────────────────────────────────────────
@@ -58,13 +64,14 @@ class Customer extends Model
         });
     }
 
-    // ─── Accessors (Smart Profit Estimation - Receivable Risk) ─────────────────
+    // ─── Accessors (Derived from Invoices — Single Source of Truth) ────────────
 
-    /** Total piutang belum lunas */
+    /** Total piutang belum lunas — derived from invoices */
     public function getTotalReceivableAttribute(): float
     {
-        return (float) $this->receivables()
+        return (float) $this->invoices()
             ->whereIn('status', ['unpaid', 'partial'])
+            ->where('remaining_amount', '>', 0)
             ->sum('remaining_amount');
     }
 
@@ -74,18 +81,19 @@ class Customer extends Model
         return (float) $this->orders()->sum('total_amount');
     }
 
-    /** Risk level customer berdasarkan piutang tertua */
+    /** Risk level customer berdasarkan invoice jatuh tempo tertua */
     public function getReceivableRiskLevelAttribute(): string
     {
-        $oldestReceivable = $this->receivables()
+        $oldestOverdue = $this->invoices()
             ->whereIn('status', ['unpaid', 'partial'])
+            ->where('remaining_amount', '>', 0)
             ->where('due_date', '<', now())
             ->orderBy('due_date', 'asc')
             ->first();
 
-        if (!$oldestReceivable) return 'low';
+        if (!$oldestOverdue) return 'low';
 
-        $maxDaysOverdue = $oldestReceivable->days_overdue;
+        $maxDaysOverdue = $oldestOverdue->days_overdue;
 
         return match (true) {
             $maxDaysOverdue > 60  => 'critical',

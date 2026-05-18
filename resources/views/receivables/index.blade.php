@@ -1,104 +1,153 @@
 <x-admin-layout>
-    <x-slot name="title">Manajemen Piutang</x-slot>
-    <x-slot name="header">Monitoring Piutang Customer</x-slot>
+    <x-slot name="title">Monitoring Piutang</x-slot>
+    <x-slot name="header">Kelola Piutang Customer</x-slot>
 
-    <div class="space-y-8">
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-theme-card p-8 rounded-2xl border border-slate-50 shadow-md shadow-sm">
-                <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Total Piutang Berjalan</p>
-                <div class="text-3xl font-black text-theme-text1 mt-2">Rp {{ number_format($stats['total_outstanding'], 0, ',', '.') }}</div>
-            </div>
-            <div class="bg-theme-card p-8 rounded-2xl border border-slate-50 shadow-md shadow-sm border-l-4 border-l-red-500">
-                <p class="text-[10px] font-black text-rose-600 uppercase tracking-widest">Jatuh Tempo (Overdue)</p>
-                <div class="text-3xl font-black text-rose-600 mt-2">Rp {{ number_format($stats['total_overdue'], 0, ',', '.') }}</div>
-            </div>
-            <div class="bg-theme-success p-8 rounded-2xl shadow-xl shadow-emerald-100 text-theme-text1">
-                <p class="text-[10px] font-black text-emerald-200 uppercase tracking-widest">Invoice Belum Lunas</p>
-                <div class="text-3xl font-black mt-2">{{ $stats['count_unpaid'] }} <span class="text-sm font-bold text-emerald-200">Dokumen</span></div>
-            </div>
+    <div class="content-section">
+        {{-- Stats — live from invoices, no cache --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <x-stat-card
+                title="Total Piutang Berjalan"
+                value="Rp {{ \App\Helpers\NumberHelper::format($stats['total_outstanding']) }}"
+                color="default"
+            />
+            <x-stat-card
+                title="Jatuh Tempo (Overdue)"
+                value="Rp {{ \App\Helpers\NumberHelper::format($stats['total_overdue']) }}"
+                color="danger"
+                caption="Perlu tindakan segera"
+            />
+            <x-stat-card
+                title="Invoice Belum Lunas"
+                value="{{ $stats['count_unpaid'] }} Dokumen"
+                color="warning"
+            />
         </div>
 
-        <!-- Filter Card -->
-        <div class="bg-theme-card p-6 rounded-2xl border border-slate-50 shadow-md shadow-sm">
-            <form action="{{ route('receivables.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="flex-1 space-y-1.5">
-                    <label class="text-[10px] font-bold text-theme-text2 uppercase tracking-widest ml-1">Customer</label>
-                    <select name="customer_id" class="w-full px-4 py-2.5 bg-theme-bg border border-theme-border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
-                        <option value="">Semua Customer</option>
-                        @foreach($customers as $customer)
-                            <option value="{{ $customer->id }}" {{ request('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->nama_toko }}</option>
-                        @endforeach
-                    </select>
+        {{-- Filter --}}
+        <form action="{{ route('receivables.index') }}" method="GET">
+            <div class="card shadow-card" style="padding:1rem 1.25rem;">
+                <div class="flex flex-wrap gap-3 items-end">
+                    <div class="form-group flex-1" style="min-width:180px;">
+                        <label class="form-label">Customer</label>
+                        <select name="customer_id" class="form-input">
+                            <option value="">Semua Customer</option>
+                            @foreach($customers as $customer)
+                                <option value="{{ $customer->id }}" {{ request('customer_id') == $customer->id ? 'selected' : '' }}>
+                                    {{ $customer->nama_toko }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group w-40">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-input">
+                            <option value="">Semua Status</option>
+                            <option value="unpaid"  {{ request('status') == 'unpaid'  ? 'selected' : '' }}>Belum Bayar</option>
+                            <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Dicicil</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm" style="margin-bottom:0; align-self:flex-end;">Tampilkan</button>
+                    @if(request('status') || request('customer_id'))
+                        <a href="{{ route('receivables.index') }}" class="btn btn-ghost btn-sm" style="align-self:flex-end;">Reset</a>
+                    @endif
                 </div>
-                <div class="w-full md:w-48 space-y-1.5">
-                    <label class="text-[10px] font-bold text-theme-text2 uppercase tracking-widest ml-1">Status</label>
-                    <select name="status" class="w-full px-4 py-2.5 bg-theme-bg border border-theme-border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
-                        <option value="">Semua Status</option>
-                        <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Belum Bayar</option>
-                        <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Dicicil</option>
-                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Lunas</option>
-                    </select>
-                </div>
-                <button type="submit" class="bg-slate-800 text-theme-text1 px-8 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-900 transition-all">Tampilkan</button>
-            </form>
-        </div>
+            </div>
+        </form>
 
-        <!-- Table Card -->
-        <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-sm overflow-hidden">
+        {{-- Table — reads directly from invoices --}}
+        <div class="card shadow-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="data-table">
                     <thead>
-                        <tr class="bg-theme-bg/50">
-                            <th class="px-8 py-4 font-bold text-theme-text2 uppercase tracking-widest text-[10px]">Invoice / Customer</th>
-                            <th class="px-8 py-4 font-bold text-theme-text2 uppercase tracking-widest text-[10px]">Jatuh Tempo</th>
-                            <th class="px-8 py-4 font-bold text-theme-text2 uppercase tracking-widest text-[10px]">Total Tagihan</th>
-                            <th class="px-8 py-4 font-bold text-theme-text2 uppercase tracking-widest text-[10px]">Sisa Piutang</th>
-                            <th class="px-8 py-4 font-bold text-theme-text2 uppercase tracking-widest text-[10px]">Status</th>
-                            <th class="px-8 py-4 font-bold text-theme-text2 uppercase tracking-widest text-[10px] text-right">Aksi</th>
+                        <tr>
+                            <th>Invoice / Customer</th>
+                            <th>Tanggal</th>
+                            <th>Jatuh Tempo</th>
+                            <th class="text-right">Total</th>
+                            <th class="text-right">Dibayar</th>
+                            <th class="text-right">Sisa</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-right" style="width:120px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @forelse($receivables as $r)
-                            <tr class="hover:bg-theme-bg/30 transition-colors">
-                                <td class="px-8 py-5">
-                                    <div class="font-black text-theme-text1">{{ $r->invoice->invoice_number }}</div>
-                                    <div class="text-[10px] font-bold text-theme-text2 mt-0.5">{{ $r->customer->nama_toko }}</div>
+                    <tbody>
+                        @forelse($invoices as $inv)
+                            <tr style="{{ $inv->is_overdue ? 'background-color:rgba(153,27,27,0.04);' : '' }}">
+                                <td>
+                                    <p class="font-semibold" style="color:var(--text-primary);">{{ $inv->invoice_number }}</p>
+                                    <p class="text-xs mt-0.5" style="color:var(--text-secondary);">{{ $inv->customer->nama_toko }}</p>
                                 </td>
-                                <td class="px-8 py-5">
-                                    <div class="{{ $r->is_overdue ? 'text-red-500 font-bold' : 'text-theme-text1' }}">
-                                        {{ $r->due_date->format('d M Y') }}
-                                        @if($r->is_overdue)
-                                            <span class="block text-[10px] uppercase tracking-tighter">Terlambat!</span>
-                                        @endif
-                                    </div>
+                                <td style="color:var(--text-muted);">
+                                    {{ $inv->invoice_date->format('d/m/Y') }}
                                 </td>
-                                <td class="px-8 py-5 font-medium text-theme-text1">Rp {{ number_format($r->total_amount, 0, ',', '.') }}</td>
-                                <td class="px-8 py-5">
-                                    <div class="text-base font-black text-theme-text1">Rp {{ number_format($r->remaining_amount, 0, ',', '.') }}</div>
-                                </td>
-                                <td class="px-8 py-5">
-                                    @if($r->status === 'paid')
-                                        <span class="px-3 py-1 bg-theme-success/40 text-emerald-600 text-[10px] font-black rounded-full uppercase tracking-widest">LUNAS</span>
-                                    @elseif($r->status === 'partial')
-                                        <span class="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest">DICICIL</span>
-                                    @else
-                                        <span class="px-3 py-1 bg-theme-error/40 text-rose-600 text-[10px] font-black rounded-full uppercase tracking-widest">BELUM BAYAR</span>
+                                <td>
+                                    <p class="{{ $inv->is_overdue ? 'font-bold' : '' }}"
+                                       style="color:{{ $inv->is_overdue ? 'var(--color-danger)' : 'var(--text-primary)' }};">
+                                        {{ $inv->due_date->format('d M Y') }}
+                                    </p>
+                                    @if($inv->is_overdue)
+                                        <p class="text-xs font-bold uppercase mt-0.5" style="color:var(--color-danger);">Terlambat {{ $inv->days_overdue }} hari</p>
                                     @endif
                                 </td>
-                                <td class="px-8 py-5 text-right">
-                                    <a href="{{ route('receivables.show', $r) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-theme-bg text-theme-text1 hover:bg-theme-success/20 hover:text-emerald-600 text-xs font-bold rounded-xl transition-all">
-                                        <span>Detail & Bayar</span>
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                    </a>
+                                <td class="text-right" style="color:var(--text-secondary);">
+                                    Rp {{ \App\Helpers\NumberHelper::format($inv->total_amount) }}
+                                </td>
+                                <td class="text-right" style="color:var(--color-success);">
+                                    Rp {{ \App\Helpers\NumberHelper::format($inv->paid_amount) }}
+                                </td>
+                                <td class="text-right font-bold" style="color:var(--text-primary);">
+                                    Rp {{ \App\Helpers\NumberHelper::format($inv->remaining_amount) }}
+                                </td>
+                                <td class="text-center">
+                                    @if($inv->is_overdue)
+                                        <span class="badge badge-danger">Overdue</span>
+                                    @elseif($inv->status === 'partial')
+                                        <span class="badge badge-warning">Dicicil</span>
+                                    @else
+                                        <span class="badge badge-neutral">Belum Bayar</span>
+                                    @endif
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-1">
+                                        <a href="{{ route('receivables.show', $inv) }}" class="btn btn-ghost btn-sm" title="Detail Piutang">
+                                            Detail
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="px-8 py-20 text-center text-theme-text2">Tidak ada data piutang.</td></tr>
+                            <tr>
+                                <td colspan="8" class="text-center py-16" style="color:var(--text-secondary);">
+                                    @if(request('status') === 'partial')
+                                        <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <p class="font-medium" style="color:var(--text-primary);">Tidak ada nota dengan status dicicil</p>
+                                        <p class="text-xs mt-1">Semua transaksi saat ini berstatus belum dibayar penuh atau sudah lunas.</p>
+                                        <p class="text-xs mt-0.5" style="color:var(--text-muted);">Nota dengan pembayaran sebagian akan muncul di sini.</p>
+                                    @elseif(request('status') === 'unpaid')
+                                        <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <p class="font-medium" style="color:var(--text-primary);">Tidak ada nota dengan status belum bayar</p>
+                                        <p class="text-xs mt-1">Semua invoice sudah memiliki pembayaran atau sudah lunas.</p>
+                                    @elseif(request('customer_id'))
+                                        <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        <p class="font-medium" style="color:var(--text-primary);">Customer ini tidak memiliki piutang aktif</p>
+                                        <p class="text-xs mt-1">Semua tagihan customer ini sudah lunas.</p>
+                                    @else
+                                        <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--color-success);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <p class="font-medium" style="color:var(--text-primary);">Semua tagihan sudah lunas!</p>
+                                        <p class="text-xs mt-1">Tidak ada piutang yang belum dibayar.</p>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+            @if($invoices->hasPages())
+                <div class="px-5 py-3" style="border-top:1px solid var(--border-soft);">
+                    {{ $invoices->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </x-admin-layout>

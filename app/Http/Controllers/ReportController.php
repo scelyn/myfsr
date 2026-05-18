@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ReportService;
+use App\Models\Order;
 use App\Models\Invoice;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -46,40 +47,66 @@ class ReportController extends Controller
 
     public function transactions(Request $request)
     {
-        $query = Invoice::with(['customer', 'order']);
-        
-        if ($request->has('date') && $request->date != '') {
-            $query->whereHas('order', function($q) use ($request) {
-                $q->whereDate('order_date', $request->date);
-            });
+        // ── Resolve filter type & date range ──────────────────────────────────
+        $filterType = $request->input('filter_type', 'month');
+        $now        = Carbon::now();
+
+        switch ($filterType) {
+            case 'today':
+                $startDate = $now->copy()->startOfDay();
+                $endDate   = $now->copy()->endOfDay();
+                break;
+
+            case 'week':
+                $startDate = $now->copy()->startOfWeek(Carbon::MONDAY);
+                $endDate   = $now->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
+                break;
+
+            case 'month':
+                $startDate = $now->copy()->startOfMonth();
+                $endDate   = $now->copy()->endOfMonth()->endOfDay();
+                break;
+
+            case 'year':
+                $startDate = $now->copy()->startOfYear();
+                $endDate   = $now->copy()->endOfYear()->endOfDay();
+                break;
+
+            case 'custom':
+                $startDate = $request->filled('start_date')
+                    ? Carbon::parse($request->input('start_date'))->startOfDay()
+                    : $now->copy()->startOfMonth();
+                $endDate = $request->filled('end_date')
+                    ? Carbon::parse($request->input('end_date'))->endOfDay()
+                    : $now->copy()->endOfDay();
+                break;
+
+            default:
+                $startDate = $now->copy()->startOfMonth();
+                $endDate   = $now->copy()->endOfMonth()->endOfDay();
+                break;
         }
-        
-        if ($request->has('customer_id') && $request->customer_id != '') {
-            $query->where('customer_id', $request->customer_id);
-        }
-        
-        if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
-        }
-        
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->where('invoice_number', 'like', "%{$search}%");
-        }
-        
-        $invoices = $query->latest('id')->paginate(15)->withQueryString();
-        
-        $summary = \Illuminate\Support\Facades\Cache::remember('transactions_summary', 300, function () {
-            return [
-                'total_transaksi' => Invoice::count(),
-                'total_omzet' => Invoice::sum('total_amount'),
-                'total_piutang' => Invoice::sum('remaining_amount'),
-                'total_lunas' => Invoice::where('status', 'paid')->count(),
-            ];
-        });
-        
-        $customers = Customer::select('id', 'nama_toko')->orderBy('nama_toko')->get();
-        
-        return view('reports.transactions', compact('invoices', 'summary', 'customers'));
+
+        // ── Build base query on Orders (filtered by order_date) ───────────────
+        $query = Order::with(['customer', 'items', 'invoice'])
+            ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()]);
+
+        // ── Fetch filtered orders ─────────────────────────────────────────────
+        $orders = $query->latest('order_date')->get();
+
+        // ── Summary cards use the SAME filtered dataset ───────────────────────
+        $totalOmzet  = $orders->sum(fn ($o) => $o->invoice?->total_amount ?? 0);
+        $totalOrders = $orders->count();
+        $totalQty    = $orders->sum(fn ($o) => $o->items->sum('quantity'));
+
+        return view('reports.transactions', compact(
+            'orders',
+            'totalOmzet',
+            'totalOrders',
+            'totalQty',
+            'filterType',
+            'startDate',
+            'endDate',
+        ));
     }
 }

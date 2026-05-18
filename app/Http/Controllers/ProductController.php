@@ -47,11 +47,26 @@ class ProductController extends Controller
             ->with('success', 'Data barang berhasil diperbarui.');
     }
 
+    /**
+     * Remove the specified resource from storage (soft-delete).
+     * Blocks deletion if product has been used in any transaction.
+     */
     public function destroy(Product $product)
     {
-        $product->delete();
+        // ── Guard: block if product is used in any order item ──
+        if ($product->orderItems()->exists()) {
+            return redirect()->route('products.index')
+                ->with('error', "Produk \"{$product->nama_barang}\" tidak dapat dihapus karena masih digunakan dalam transaksi.");
+        }
 
-        return redirect()->route('products.index')
-            ->with('success', 'Barang telah dihapus.');
+        try {
+            $product->delete();
+
+            return redirect()->route('products.index')
+                ->with('success', "Produk \"{$product->nama_barang}\" berhasil dihapus.");
+        } catch (\Exception $e) {
+            return redirect()->route('products.index')
+                ->with('error', 'Gagal menghapus produk. Silakan coba lagi atau hubungi administrator.');
+        }
     }
 }

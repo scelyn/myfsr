@@ -43,6 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/invoices/{invoice}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
     Route::get('/payments/create', [\App\Http\Controllers\CustomerPaymentController::class, 'create'])->name('payments.create');
     Route::post('/payments', [\App\Http\Controllers\CustomerPaymentController::class, 'store'])->name('payments.store');
+
+    // Receivables Module (reads from invoices — no separate table)
+    Route::get('/receivables', [\App\Http\Controllers\ReceivableController::class, 'index'])->name('receivables.index');
+    Route::get('/receivables/{invoice}', [\App\Http\Controllers\ReceivableController::class, 'show'])->name('receivables.show');
 });
 
 require __DIR__.'/auth.php';

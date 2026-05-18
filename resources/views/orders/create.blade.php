@@ -2,36 +2,6 @@
     <x-slot name="title">Input Transaksi Pesanan</x-slot>
     <x-slot name="header">Buat Transaksi Pesanan Baru</x-slot>
 
-    <!-- Tom Select Custom Styles for #06141B Theme -->
-    <style>
-        .ts-control {
-            border-radius: 0.75rem !important; /* rounded-xl */
-            border: 1px solid #4A5C6A !important;
-            background-color: transparent !important;
-            padding: 0.75rem 1rem !important;
-            color: #CCD0CF !important;
-        }
-        .ts-control.focus {
-            border-color: #9BA8AB !important;
-            box-shadow: 0 0 0 2px rgba(155, 168, 171, 0.2) !important;
-        }
-        .ts-dropdown {
-            border-radius: 0.75rem !important;
-            border: 1px solid #253745 !important;
-            background-color: #11212D !important;
-            color: #CCD0CF !important;
-        }
-        .ts-dropdown .option {
-            padding: 0.75rem 1rem !important;
-        }
-        .ts-dropdown .option.active, .ts-dropdown .option:hover {
-            background-color: #253745 !important;
-            color: #fff !important;
-        }
-        .ts-control > input {
-            color: #CCD0CF !important;
-        }
-    </style>
 
     <div class="max-w-6xl mx-auto" x-data="orderForm()">
         <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-theme-text1 transition-colors mb-6 group">
@@ -46,7 +16,7 @@
                 <!-- Left: Order Info & Items -->
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Main Info -->
-                    <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm p-8 transition-all hover:shadow-md">
+                    <div class="card p-6">
                         <h3 class="text-lg font-bold text-theme-text1 mb-6 flex items-center gap-2">
                             <svg class="w-5 h-5 text-theme-text2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             Informasi Dasar
@@ -73,13 +43,13 @@
                     </div>
 
                     <!-- Items -->
-                    <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm overflow-hidden">
+                    <div class="card overflow-hidden">
                         <div class="px-8 py-6 border-b border-theme-border bg-slate-100 flex items-center justify-between">
                             <h3 class="text-lg font-bold text-theme-text1 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-theme-text2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                                 Daftar Produk
                             </h3>
-                            <button type="button" @click="addItem()" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-theme-text1 hover:bg-[#4A5C6A] hover:text-theme-text1 text-xs font-bold rounded-xl transition-all shadow-md">
+                            <button type="button" @click="addItem()" class="btn btn-ghost btn-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 <span>Tambah Produk</span>
                             </button>
@@ -109,7 +79,7 @@
                                                     </select>
                                                 </div>
                                                 <input type="hidden" :name="`items[${index}][product_id]`" x-model="item.product_id" required>
-                                                <input type="text" :name="`items[${index}][notes]`" x-model="item.notes" placeholder="Catatan opsional..." class="w-full mt-2 bg-transparent border-none text-[11px] text-theme-text2 p-0 focus:ring-0 placeholder-[#4A5C6A]">
+                                                <input type="text" :name="`items[${index}][notes]`" x-model="item.notes" placeholder="Catatan opsional..." class="w-full mt-2 bg-transparent border-none text-[11px] text-theme-text2 p-0 focus:ring-0 placeholder-gray-400">
                                             </td>
                                             <td class="px-4 py-5">
                                                 <input type="number" :name="`items[${index}][quantity]`" x-model.number="item.quantity" step="1" min="1" class="w-full px-2 py-3 bg-transparent border border-slate-300 text-theme-text1 rounded-xl text-sm text-center focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all outline-none" required>
@@ -137,7 +107,7 @@
                 <!-- Right: Summary & Notes -->
                 <div class="lg:col-span-1 space-y-8">
                     <!-- Summary Card -->
-                    <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm overflow-hidden sticky top-8">
+                    <div class="card overflow-hidden sticky top-8">
                         <div class="px-8 py-6 border-b border-theme-border bg-slate-100">
                             <h3 class="text-lg font-bold text-theme-text1">Ringkasan Transaksi</h3>
                         </div>
@@ -154,11 +124,12 @@
                             <div class="space-y-4 pt-6 border-t border-theme-border mt-4">
                                 <div class="space-y-2">
                                     <label class="text-xs font-bold text-theme-text2 uppercase tracking-widest">Catatan Internal</label>
-                                    <textarea name="notes" rows="3" placeholder="Contoh: Titipkan di toko..." class="w-full px-4 py-3 bg-transparent border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all text-theme-text1 placeholder-[#4A5C6A] outline-none">{{ old('notes') }}</textarea>
+                                    <textarea name="notes" rows="3" placeholder="Contoh: Titipkan di toko..." class="w-full px-4 py-3 bg-transparent border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all text-theme-text1 placeholder-gray-400 outline-none">{{ old('notes') }}</textarea>
                                 </div>
                             </div>
 
-                            <button type="submit" @click="if(items.length === 0) { $event.preventDefault(); alert('Minimal 1 produk!'); }" class="w-full py-4 bg-theme-primary hover:bg-theme-card disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-black rounded-xl shadow-lg shadow-sm transition-all transform hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
+                            <button type="submit" @click="if(items.length === 0) { $event.preventDefault(); alert('Minimal 1 produk!'); }"
+                                    class="btn btn-primary w-full justify-center h-auto py-3 text-sm font-black">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span>SIMPAN TRANSAKSI</span>
                             </button>

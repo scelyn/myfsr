@@ -90,7 +90,6 @@ class PaymentService extends BaseService
 
             \Illuminate\Support\Facades\Cache::forget('dashboard_data');
             \Illuminate\Support\Facades\Cache::forget('transactions_summary');
-            \Illuminate\Support\Facades\Cache::forget('receivable_stats');
 
             return $paymentsCreated;
         });

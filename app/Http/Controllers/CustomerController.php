@@ -51,10 +51,10 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        // Eager load orders, payments, and receivables for detail page
+        // Eager load orders and payments for detail page
+        // (Piutang is loaded via outstandingInvoices() in the view)
         $customer->load([
             'orders' => fn ($q) => $q->with('invoice')->latest()->limit(10),
-            'receivables' => fn ($q) => $q->with('invoice')->orderBy('due_date'),
             'customerPayments' => fn ($q) => $q->latest()->limit(10),
         ]);
 
@@ -81,14 +81,32 @@ class CustomerController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage (soft-delete).
+     * Blocks deletion if customer has existing orders or unpaid invoices.
      */
     public function destroy(Customer $customer)
     {
-        $this->customerService->deleteCustomer($customer);
+        // ── Guard: block if customer has any orders ──
+        if ($customer->orders()->exists()) {
+            return redirect()->route('customers.index')
+                ->with('error', "Customer \"{$customer->nama_toko}\" tidak dapat dihapus karena masih memiliki data transaksi.");
+        }
 
-        return redirect()->route('customers.index')
-            ->with('success', 'Data customer berhasil dihapus.');
+        // ── Guard: block if customer has unpaid invoices ──
+        if ($customer->invoices()->whereIn('status', ['unpaid', 'partial'])->exists()) {
+            return redirect()->route('customers.index')
+                ->with('error', "Customer \"{$customer->nama_toko}\" tidak dapat dihapus karena masih memiliki piutang aktif.");
+        }
+
+        try {
+            $this->customerService->deleteCustomer($customer);
+
+            return redirect()->route('customers.index')
+                ->with('success', "Data customer \"{$customer->nama_toko}\" berhasil dihapus.");
+        } catch (\Exception $e) {
+            return redirect()->route('customers.index')
+                ->with('error', 'Gagal menghapus customer. Silakan coba lagi atau hubungi administrator.');
+        }
     }
 
     /**

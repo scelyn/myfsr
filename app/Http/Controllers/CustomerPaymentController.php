@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Receivable;
 use App\Models\CustomerPayment;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;

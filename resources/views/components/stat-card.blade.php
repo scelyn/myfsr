@@ -1,48 +1,33 @@
-@props(['title', 'value', 'subtitle', 'color' => 'slate', 'icon' => ''])
+@props([
+    'title'   => '',
+    'value'   => '',
+    'caption' => null,
+    'color'   => 'default',
+    'icon'    => null,
+])
 
 @php
-    $bgColors = [
-        'emerald' => 'bg-theme-success text-theme-text1 shadow-xl shadow-emerald-100',
-        'slate' => 'bg-theme-card border border-slate-50 shadow-md shadow-sm text-theme-text1',
+    $colorMap = [
+        'success' => ['wrap' => 'stat-success', 'icon' => 'icon-success'],
+        'danger'  => ['wrap' => 'stat-danger',  'icon' => 'icon-danger'],
+        'warning' => ['wrap' => 'stat-warning',  'icon' => 'icon-warning'],
+        'info'    => ['wrap' => 'stat-info',     'icon' => 'icon-info'],
+        'default' => ['wrap' => '',              'icon' => ''],
     ];
-    $titleColors = [
-        'emerald' => 'text-emerald-200',
-        'slate' => 'text-theme-text2',
-    ];
-    $valueColors = [
-        'emerald' => 'text-theme-text1',
-        'slate' => 'text-theme-text1',
-        'red' => 'text-rose-600',
-    ];
-    $subtitleColors = [
-        'emerald' => 'text-emerald-100',
-        'slate' => 'text-theme-text2',
-        'emerald-text' => 'text-emerald-500',
-    ];
-    
-    // Determine specific value color override based on color prop
-    $valColor = $color === 'red' ? $valueColors['red'] : ($color === 'emerald' ? $valueColors['emerald'] : $valueColors['slate']);
-    $baseBg = $color === 'emerald' ? $bgColors['emerald'] : $bgColors['slate'];
-    $titleCol = $color === 'emerald' ? $titleColors['emerald'] : $titleColors['slate'];
-    $subColor = $color === 'emerald' ? $subtitleColors['emerald'] : (str_contains($subtitle, '↑') ? $subtitleColors['emerald-text'] : $subtitleColors['slate']);
-    
-    // Decoration circle
-    $decColors = [
-        'emerald' => 'bg-theme-card/10',
-        'slate' => 'bg-theme-success/20',
-        'red' => 'bg-theme-error/20',
-        'blue' => 'bg-blue-50',
-    ];
-    $decColor = $decColors[$color] ?? $decColors['slate'];
+    $c = $colorMap[$color] ?? $colorMap['default'];
 @endphp
 
-<div class="{{ $baseBg }} p-8 rounded-2xl relative overflow-hidden group">
-    <div class="absolute -right-4 -top-4 w-24 h-24 {{ $decColor }} rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-    <div class="relative">
-        <p class="text-[10px] font-black {{ $titleCol }} uppercase tracking-widest">{{ $title }}</p>
-        <div class="text-2xl font-black {{ $valColor }} mt-2">{{ $value }}</div>
-        @if($subtitle)
-            <p class="text-[10px] font-bold {{ $subColor }} mt-1">{{ $subtitle }}</p>
+<article class="stat-card-wrap {{ $c['wrap'] }}">
+    <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0 flex-1">
+            <p class="form-label mb-2">{{ $title }}</p>
+            <p class="text-2xl font-black" style="color:var(--text-primary); line-height:1.1;">{{ $value }}</p>
+            @if($caption)
+                <p class="text-xs mt-1" style="color:var(--text-muted);">{{ $caption }}</p>
+            @endif
+        </div>
+        @if($icon)
+            <div class="stat-icon-wrap {{ $c['icon'] }}">{!! $icon !!}</div>
         @endif
     </div>
-</div>
+</article>

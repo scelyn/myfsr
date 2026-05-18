@@ -15,8 +15,9 @@ class CustomerService extends BaseService
     public function getPaginated(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         $query = Customer::withCount(['orders'])
-            ->withSum(['receivables as total_piutang' => function ($q) {
-                $q->whereIn('status', ['unpaid', 'partial']);
+            ->withSum(['invoices as total_piutang' => function ($q) {
+                $q->whereIn('status', ['unpaid', 'partial'])
+                  ->where('remaining_amount', '>', 0);
             }], 'remaining_amount')
             ->latest();
 

@@ -53,11 +53,6 @@ class Order extends Model
         return $this->hasOne(Invoice::class);
     }
 
-    public function receivable()
-    {
-        return $this->hasOneThrough(Receivable::class, Invoice::class);
-    }
-
     // ─── Scopes ────────────────────────────────────────────────────────────────
 
     public function scopeActive($query)

@@ -1,79 +1,1379 @@
+/* ============================================================
+   SIPEDIS — Enterprise Design System v3
+   Palette: Dark Navy (#06141B) + Light Background (#F7F9FB)
+   ⚠️  DO NOT rename .bg-theme-* classes — used by thermal print CSS
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+    /* Navy Scale — structural chrome */
+    --navy-900: #06141B;
+    --navy-800: #11212D;
+    --navy-700: #253745;
+    --navy-600: #4A5C6A;
+
+    /* Backgrounds — always light */
+    --bg-app:      #F7F9FB;
+    --bg-surface:  #F1F5F9;
+    --bg-card:     #ffffff;
+    --bg-overlay:  rgba(6,20,27,0.03);
+
+    /* Borders */
+    --border-soft:   #E5E7EB;
+    --border-medium: #D1D5DB;
+
+    /* Primary accent — Dark Navy */
+    --accent-primary:   #06141B;
+    --accent-secondary: #4A5C6A;
+    --accent-hover:     #11212D;
+    --accent-light:     rgba(37,55,69,0.12);
+    --accent-muted:     rgba(6,20,27,0.06);
+
+    /* Text — strict readability */
+    --text-primary:   #0F172A;
+    --text-secondary: #374151;
+    --text-muted:     #64748B;
+    --text-disabled:  #94A3B8;
+    --text-accent:    #06141B;
+
+    /* Light text — for dark chrome */
+    --text-on-dark:       #F1F5F9;
+    --text-on-dark-muted: rgba(241,245,249,0.50);
+
+    /* Semantic colors — limited accent use */
+    --color-success:        #15803d;
+    --color-success-bg:     #dcfce7;
+    --color-success-border: #bbf7d0;
+    --color-warning:        #a16207;
+    --color-warning-bg:     #fef9c3;
+    --color-danger:         #dc2626;
+    --color-danger-bg:      #fee2e2;
+    --color-danger-border:  #fca5a5;
+    --color-info:           #1e40af;
+    --color-info-bg:        #dbeafe;
+
+    /* Shadows — minimal enterprise */
+    --shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+
+    /* Spacing scale: 4, 8, 12, 16, 24, 32, 48 */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-12: 48px;
+
+    /* Layout */
+    --sidebar-width:     240px;
+    --sidebar-collapsed: 64px;
+    --header-height:     60px;
+
+    /* Border radius */
+    --radius-sm:  8px;
+    --radius-md:  12px;
+    --radius-lg:  12px;
+    --radius-xl:  12px;
+}
+
+/* ── Base ──────────────────────────────────────────────────── */
 @layer base {
-  /* Override default select backgrounds */
-  select {
-    background-color: #06141B !important;
-    color: #CCD0CF !important;
-  }
-  select option {
-    background-color: #11212D;
-    color: #CCD0CF;
-  }
-  input, textarea {
-    color: #CCD0CF !important;
-  }
-  input::placeholder, textarea::placeholder {
-    color: #4A5C6A !important;
-  }
+    html { @apply h-full; }
+    body {
+        background-color: var(--bg-app);
+        color: var(--text-primary);
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        @apply h-full antialiased;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-primary);
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0;
+    }
+    h1 { font-size: 1.5rem; }  /* 24px — Page Title */
+    h2 { font-size: 1.125rem; } /* 18px — Section Title */
+    h3 { font-size: .875rem; }  /* 14px — Card Title */
+    p { line-height: 1.6; font-size: .875rem; color: var(--text-secondary); }
+    a { color: var(--accent-primary); }
+    a:hover { color: var(--accent-hover); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 99px; }
 }
 
-/* TomSelect Dark Theme Fixes */
-.ts-control, .ts-control input, .ts-dropdown {
-    color: #CCD0CF !important;
-    background-color: #06141B !important;
-    border-color: #4A5C6A !important;
+/* ── Enterprise Layout System ─────────────────────────────── */
+@layer base {
+    /* Root shell — full viewport, sidebar + main side by side */
+    .app-layout {
+        display: flex;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background-color: var(--bg-app);
+    }
+
+    /* ── Sidebar ── dark navy chrome ── */
+    .app-sidebar {
+        flex-shrink: 0;
+        height: 100vh;
+        height: 100dvh;
+        position: sticky;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--navy-800);
+        border-right: none;
+        transition: width .2s ease, min-width .2s ease;
+        overflow: hidden;
+        z-index: 30;
+    }
+
+    .app-sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: 0 1rem;
+        height: 60px;
+        min-height: 60px;
+        flex-shrink: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .app-sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem .5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .app-sidebar-footer {
+        flex-shrink: 0;
+        padding: .5rem;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: .125rem;
+    }
+
+    .sidebar-group-title {
+        padding: 0 .75rem;
+        margin-bottom: .375rem;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--text-on-dark-muted);
+    }
+
+    /* ── Main column ── header + content + footer ── */
+    .app-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    /* ── Header ── dark navy, flush with sidebar ── */
+    .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0 1.5rem;
+        height: 60px;
+        min-height: 60px;
+        flex-shrink: 0;
+        background-color: var(--navy-800);
+        border-bottom: none;
+    }
+
+    /* ── Content ── fills remaining space ── */
+    .app-content {
+        flex: 1;
+        padding: 1.5rem;
+        background-color: var(--bg-app);
+    }
+
+    /* ── Footer ── part of the layout grid ── */
+    .app-footer {
+        flex-shrink: 0;
+        padding: .75rem 1.5rem;
+        border-top: 1px solid var(--border-soft);
+        background-color: var(--bg-card);
+        text-align: center;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
 }
-.ts-dropdown .option {
-    color: #9BA8AB;
+
+/* ── Animations ────────────────────────────────────────────── */
+@layer utilities {
+    @keyframes fadeIn  { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+    @keyframes toastIn { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:none; } }
+
+    .animate-fade-in  { animation: fadeIn  .25s ease both; }
+    .animate-slide-up { animation: slideUp .3s ease both; }
+    .animate-toast-in { animation: toastIn .3s cubic-bezier(.16,1,.3,1) both; }
 }
-.ts-dropdown .option:hover, .ts-dropdown .active {
-    background-color: #253745 !important;
-    color: #CCD0CF !important;
+
+/* ── Enterprise Session Control System ─────────────────────── */
+[x-cloak] { display: none !important; }
+
+.session-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background-color: rgba(6, 20, 27, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
 }
-.ts-control {
-    border-radius: 0.75rem !important;
-    padding: 0.75rem 1rem !important;
-}
-.ts-dropdown {
-    border-radius: 0.75rem !important;
+
+.session-modal-panel {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(6, 20, 27, 0.18), 0 0 0 1px rgba(0,0,0,0.04);
+    width: 100%;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-}
-.item {
-    background-color: #253745 !important;
-    color: #CCD0CF !important;
-    border: 1px solid #4A5C6A !important;
-    border-radius: 0.5rem !important;
 }
 
-/* Print Styles */
+.session-modal-body {
+    padding: 2rem 2rem 1.25rem;
+    text-align: center;
+}
+
+.session-modal-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1.25rem;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.session-modal-icon--danger {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+.session-modal-icon--warning {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.session-modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 .5rem;
+}
+
+.session-modal-text {
+    font-size: .875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+}
+
+.session-countdown-inline {
+    color: var(--color-danger);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.session-countdown-ring {
+    position: relative;
+    width: 68px;
+    height: 68px;
+    margin: 1.25rem auto 0;
+}
+.session-countdown-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.session-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: .75rem;
+    padding: 1.25rem 2rem;
+    border-top: 1px solid var(--border-soft);
+    background-color: var(--bg-surface);
+}
+
+.session-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    font-size: .8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color .15s;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: var(--color-danger);
+    color: #ffffff;
+    border-color: var(--color-danger);
+}
+.session-btn-danger:hover {
+    background-color: #b91c1c;
+    color: #ffffff;
+}
+
+/* ── Components ────────────────────────────────────────────── */
+@layer components {
+
+    /* ── Cards — minimal enterprise style ────────────────────── */
+    .card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-4) var(--space-6);
+        border-bottom: 1px solid var(--border-soft);
+    }
+    .card-header h3 {
+        font-size: .875rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    /* Enterprise: minimal shadow. Use sparingly. */
+    .shadow-card     { box-shadow: var(--shadow-xs); }
+    .shadow-elevated { box-shadow: var(--shadow-sm); }
+
+    /* ── Stat Card — functional data display ───────────────── */
+    .stat-card-wrap {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: var(--space-6);
+        transition: background-color .15s;
+        /* NO shadow — enterprise clean */
+    }
+    .stat-card-wrap:hover { background-color: var(--bg-surface); }
+
+    .stat-card-wrap.stat-success { border-left: 3px solid #10b981; }
+    .stat-card-wrap.stat-danger  { border-left: 3px solid #ef4444; }
+    .stat-card-wrap.stat-warning { border-left: 3px solid #f59e0b; }
+    .stat-card-wrap.stat-info    { border-left: 3px solid var(--accent-primary); }
+
+    .stat-icon-wrap {
+        width: 2.5rem; height: 2.5rem;
+        border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        background-color: var(--bg-surface);
+        color: var(--accent-secondary);
+        flex-shrink: 0;
+    }
+    .stat-icon-wrap.icon-success { background-color: var(--color-success-bg); color: var(--color-success); }
+    .stat-icon-wrap.icon-danger  { background-color: var(--color-danger-bg);  color: var(--color-danger); }
+    .stat-icon-wrap.icon-info    { background-color: var(--accent-light); color: var(--accent-primary); }
+    .stat-icon-wrap.icon-warning { background-color: var(--color-warning-bg); color: var(--color-warning); }
+
+    /* ── Buttons — standardized 40px height ────────────────── */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .5rem 1rem;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        font-size: .8125rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: background-color .15s, border-color .15s;
+        text-decoration: none;
+        line-height: 1.4;
+        white-space: nowrap;
+    }
+    .btn:active { transform: scale(.98); }
+
+    .btn-sm  { padding: .375rem .75rem; font-size: .75rem; height: 32px; }
+    .btn-lg  { padding: .625rem 1.375rem; font-size: .875rem; height: 44px; }
+    .btn-xl  { padding: .75rem 1.75rem; font-size: .9375rem; }
+
+    /* Primary — enterprise blue */
+    .btn-primary {
+        background-color: var(--accent-primary);
+        color: #ffffff;
+        border-color: var(--accent-primary);
+    }
+    .btn-primary:hover { background-color: var(--accent-hover); color:#fff; }
+
+    /* Accent — same as primary for compatibility */
+    .btn-accent {
+        background-color: var(--accent-primary);
+        color: #ffffff;
+        border-color: var(--accent-primary);
+    }
+    .btn-accent:hover { background-color: var(--accent-hover); color:#fff; }
+
+    /* Ghost — outlined */
+    .btn-ghost {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border-color: var(--border-soft);
+    }
+    .btn-ghost:hover { background-color: var(--bg-surface); color: var(--text-primary); border-color: var(--border-medium); }
+
+    /* Soft (secondary surface) */
+    .btn-soft {
+        background-color: var(--accent-light);
+        color: var(--accent-primary);
+        border-color: transparent;
+    }
+    .btn-soft:hover { background-color: #d0dcf0; }
+
+    /* Danger */
+    .btn-danger {
+        background-color: var(--color-danger-bg);
+        color: var(--color-danger);
+        border-color: var(--color-danger-border);
+    }
+    .btn-danger:hover { background-color: #fecaca; }
+
+    /* ── Icon Buttons ────────────────────────────────────────── */
+    .icon-btn {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        width: 2rem; height: 2rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer; border: none;
+        transition: background-color .15s, color .15s;
+        background: transparent;
+        color: var(--text-muted);
+    }
+    .icon-btn:hover          { background-color: var(--bg-surface); color: var(--text-primary); }
+    .icon-btn-view:hover     { background-color: var(--accent-light); color: var(--accent-primary); }
+    .icon-btn-edit:hover     { background-color: #fef9c3; color: #854d0e; }
+    .icon-btn-delete:hover   { background-color: var(--color-danger-bg); color: var(--color-danger); }
+
+    /* ── Forms ───────────────────────────────────────────────── */
+    .form-group { display: flex; flex-direction: column; gap: .375rem; }
+    .form-label {
+        font-size: .75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        letter-spacing: .025em;
+        text-transform: uppercase;
+    }
+    .form-input {
+        width: 100%;
+        padding: .5625rem .875rem;
+        background-color: #ffffff;
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        font-size: .875rem;
+        font-weight: 500;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+    }
+    .form-input:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(0,54,114,.08);
+    }
+    .form-input::placeholder { color: var(--text-muted); font-weight: 400; }
+    .form-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.08); }
+
+    select.form-input { cursor: pointer; }
+    textarea.form-input { resize: vertical; line-height: 1.5; }
+
+    /* ── Global Select / Option Dark Typography ─────────────── */
+    /* Enforce dark text in all native select and option elements */
+    select,
+    select option {
+        color: #111827;
+        background-color: #ffffff;
+    }
+    select:focus {
+        border-color: #374151;
+    }
+
+    /* ── TomSelect — Light Theme Override ────────────────────── */
+    .ts-control {
+        border-radius: var(--radius-sm) !important;
+        border: 1px solid var(--border-soft) !important;
+        background-color: #ffffff !important;
+        padding: .5625rem .875rem !important;
+        color: #111827 !important;
+        font-size: .875rem;
+    }
+    .ts-control.focus,
+    .ts-control:focus-within {
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 0 3px rgba(0,54,114,.08) !important;
+    }
+    .ts-control > input {
+        color: #111827 !important;
+    }
+    .ts-control > input::placeholder {
+        color: var(--text-muted) !important;
+    }
+    .ts-dropdown {
+        border-radius: var(--radius-sm) !important;
+        border: 1px solid var(--border-soft) !important;
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    .ts-dropdown .option {
+        padding: .625rem .875rem !important;
+        color: #111827 !important;
+    }
+    .ts-dropdown .option.active,
+    .ts-dropdown .option:hover {
+        background-color: var(--accent-light) !important;
+        color: var(--accent-primary) !important;
+    }
+    .ts-dropdown .no-results {
+        padding: .625rem .875rem !important;
+        color: var(--text-muted) !important;
+    }
+
+    /* ── Search Bar ──────────────────────────────────────────── */
+    .search-bar {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .search-bar svg {
+        position: absolute;
+        left: .75rem;
+        width: 1rem; height: 1rem;
+        color: var(--text-muted);
+        pointer-events: none;
+        flex-shrink: 0;
+    }
+    .search-bar input {
+        width: 100%;
+        padding: .5rem .875rem .5rem 2.25rem;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        font-size: .875rem;
+        outline: none;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .search-bar input:focus {
+        background-color: #ffffff;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(6,20,27,.06);
+    }
+    .search-bar input::placeholder { color: var(--text-muted); }
+
+    /* ── Data Table ──────────────────────────────────────────── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
+    .data-table thead tr {
+        background-color: #F1F5F9;
+        border-bottom: 1px solid var(--border-soft);
+    }
+    .data-table thead th {
+        padding: .625rem 1rem;
+        text-align: left;
+        font-size: .6875rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        white-space: nowrap;
+    }
+    .data-table tbody tr {
+        border-bottom: 1px solid var(--border-soft);
+        transition: background-color .12s;
+    }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table tbody tr:hover { background-color: #F8FAFC; }
+    .data-table tbody td {
+        padding: .75rem 1rem;
+        color: var(--text-primary);
+        vertical-align: middle;
+    }
+    .data-table tfoot tr { background-color: var(--bg-surface); }
+    .data-table tfoot td {
+        padding: .75rem 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-top: 2px solid var(--border-medium);
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge {
+        display: inline-flex; align-items: center;
+        padding: .2rem .625rem;
+        border-radius: 99px;
+        font-size: .6875rem;
+        font-weight: 700;
+        letter-spacing: .03em;
+        line-height: 1.4;
+    }
+    .badge-success { background-color: var(--color-success-bg); color: var(--color-success); }
+    .badge-danger  { background-color: var(--color-danger-bg);  color: var(--color-danger); }
+    .badge-warning { background-color: var(--color-warning-bg); color: var(--color-warning); }
+    .badge-info    { background-color: var(--accent-light);     color: var(--accent-primary); }
+    .badge-neutral { background-color: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-soft); }
+
+    /* ── Sidebar Navigation — light text on dark chrome ── */
+    .nav-link {
+        display: flex; align-items: center; gap: .625rem;
+        padding: .5rem .75rem;
+        border-radius: var(--radius-sm);
+        font-size: .8125rem;
+        font-weight: 500;
+        color: var(--text-on-dark-muted);
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: background-color .15s, color .15s;
+        white-space: nowrap;
+    }
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.06);
+        color: var(--text-on-dark);
+    }
+    .nav-link.active {
+        background-color: var(--navy-700);
+        color: #ffffff;
+        font-weight: 700;
+        border-color: transparent;
+    }
+    .nav-link .nav-icon {
+        width: 1.25rem; height: 1.25rem;
+        flex-shrink: 0;
+        color: inherit;
+        transition: color .15s;
+    }
+
+    /* ── Flash / Toast ───────────────────────────────────────── */
+    .toast {
+        position: fixed; top: 1.25rem; right: 1.25rem;
+        z-index: 9999;
+        display: flex; align-items: flex-start; gap: .75rem;
+        padding: .875rem 1.125rem;
+        border-radius: var(--radius-md);
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-lg);
+        max-width: 22rem;
+        animation: toastIn .3s cubic-bezier(.16,1,.3,1) both;
+    }
+    .toast-success { border-left: 3px solid #10b981; }
+    .toast-error   { border-left: 3px solid #ef4444; }
+    .toast-warning { border-left: 3px solid #f59e0b; }
+
+    /* ── Modal ───────────────────────────────────────────────── */
+    .modal-backdrop {
+        position: fixed; inset: 0; z-index: 50;
+        background-color: rgba(15,23,42,.35);
+        backdrop-filter: blur(3px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 1rem;
+    }
+    .modal-panel {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        width: 100%; max-width: 32rem;
+        animation: slideUp .2s ease both;
+        overflow: hidden;
+    }
+    .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1.125rem 1.5rem;
+        border-bottom: 1px solid var(--border-soft);
+    }
+    .modal-body   { padding: 1.5rem; }
+    .modal-footer {
+        display: flex; justify-content: flex-end; gap: .5rem;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border-soft);
+        background-color: var(--bg-surface);
+    }
+
+    /* ── Layout helpers ──────────────────────────────────────── */
+    .content-section   { display: flex; flex-direction: column; gap: 1.25rem; }
+    .page-header       { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .page-title        { font-size: 1.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
+    .page-subtitle     { font-size: .8125rem; color: var(--text-secondary); margin-top: .125rem; }
+    .back-link {
+        display: inline-flex; align-items: center; gap: .375rem;
+        font-size: .8125rem; font-weight: 600;
+        color: var(--text-secondary);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color .15s;
+    }
+    .back-link:hover { color: var(--accent-primary); }
+    .divider { border: none; border-top: 1px solid var(--border-soft); margin: .5rem 0; }
+
+    /* ── TomSelect dark override (search inputs) ─────────────── */
+    .ts-wrapper.form-control .ts-control,
+    .ts-wrapper .ts-control {
+        background-color: #ffffff !important;
+        border: 1px solid var(--border-soft) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        box-shadow: none !important;
+        padding: .5rem .875rem !important;
+        font-size: .875rem !important;
+    }
+    .ts-wrapper .ts-control:focus-within {
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 0 3px rgba(0,54,114,.08) !important;
+    }
+    .ts-dropdown {
+        background-color: #ffffff !important;
+        border: 1px solid var(--border-soft) !important;
+        border-radius: var(--radius-sm) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    .ts-dropdown .option { color: var(--text-primary) !important; padding: .5rem .875rem !important; }
+    .ts-dropdown .option:hover,
+    .ts-dropdown .option.active { background-color: var(--accent-light) !important; color: var(--accent-primary) !important; }
+    .ts-dropdown .optgroup-header {
+        color: var(--text-secondary) !important;
+        font-size: .6875rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: .06em !important;
+    }
+
+    /* ── Pagination ──────────────────────────────────────────── */
+    nav[aria-label="pagination"] { display:flex; justify-content:flex-end; }
+    .pagination { display:flex; gap:.25rem; align-items:center; flex-wrap:wrap; }
+    .pagination span,
+    .pagination a {
+        display:inline-flex; align-items:center; justify-content:center;
+        min-width:2rem; height:2rem; padding:0 .5rem;
+        border-radius: var(--radius-sm);
+        font-size:.75rem; font-weight:600;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-soft);
+        text-decoration:none;
+        transition: background-color .12s, color .12s, border-color .12s;
+        background-color: #ffffff;
+    }
+    .pagination a:hover { background-color: var(--accent-light); color: var(--accent-primary); border-color: rgba(0,54,114,.2); }
+    .pagination span[aria-current="page"] {
+        background-color: var(--accent-primary);
+        color: #ffffff;
+        border-color: var(--accent-primary);
+    }
+
+    /* ── Print preservation (thermal printers) ───────────────── */
+    /* ⚠️ FROZEN: .bg-theme-success / .bg-theme-error / .bg-yellow-100 used by invoices/show.blade.php print CSS */
+    .bg-theme-success { background-color: var(--color-success-bg); }
+    .bg-theme-error   { background-color: var(--color-danger-bg); }
+    .text-theme-text1 { color: var(--text-primary); }
+    .text-theme-text2 { color: var(--text-secondary); }
+    .bg-theme-bg      { background-color: var(--bg-surface); }
+}
+
+/* ── Guest layout ──────────────────────────────────────────── */
+.guest-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-app);
+    background-image:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,54,114,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 80% 90%, rgba(92,111,139,.05) 0%, transparent 70%);
+    padding: 1.5rem;
+}
+
+/* ============================================================
+   INVOICE LAYOUT — SCREEN STYLES
+   Table-based invoice structure for print-first architecture.
+   These styles power the on-screen rendering of invoice tables
+   that are designed to print identically in browser + DomPDF.
+   ============================================================ */
+
+/* ── Invoice Layout Tables (screen) ───────────────────────── */
+.invoice-layout-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: none;
+}
+.invoice-layout-table td {
+    vertical-align: top;
+    padding: 0;
+    border: none;
+}
+
+/* ── Invoice Product Table (screen) ───────────────────────── */
+.invoice-product-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.875rem;
+}
+.invoice-product-table th {
+    padding: 0.75rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    vertical-align: middle;
+    line-height: 1.4;
+    text-align: left;
+}
+.invoice-product-table td {
+    padding: 0.75rem 0.75rem;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+.invoice-product-table .col-no       { width: 5%;  text-align: center; }
+.invoice-product-table .col-desc     { width: 45%; text-align: left; }
+.invoice-product-table .col-qty      { width: 15%; text-align: center; }
+.invoice-product-table .col-price    { width: 15%; text-align: right; }
+.invoice-product-table .col-subtotal { width: 20%; text-align: right; }
+
+/* ── Invoice Totals (screen) ──────────────────────────────── */
+.invoice-total-wrapper {
+    width: 100%;
+    margin-top: 0;
+}
+.invoice-total-anchor {
+    width: 100%;
+    border-collapse: collapse;
+    border: none;
+}
+.invoice-total-anchor td {
+    border: none;
+    padding: 0;
+    vertical-align: top;
+}
+.invoice-total-anchor .spacer-col {
+    width: 50%;
+}
+.invoice-total-anchor .total-col {
+    width: 50%;
+}
+.invoice-total-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.invoice-total-table td {
+    padding: 6px 10px;
+    font-size: 0.875rem;
+    vertical-align: middle;
+    line-height: 1.4;
+    border: none;
+}
+.invoice-total-table .label-col {
+    width: 55%;
+    text-align: left;
+}
+.invoice-total-table .value-col {
+    width: 45%;
+    text-align: right;
+}
+.total-section-header {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid var(--border-soft) !important;
+}
+.total-row-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+.total-row-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.total-row-warning .total-row-label,
+.total-row-warning .total-row-value {
+    color: var(--color-warning);
+}
+.total-row-success .total-row-label,
+.total-row-success .total-row-value {
+    color: var(--color-success);
+}
+.total-row-danger .total-row-label,
+.total-row-danger .total-row-value {
+    color: var(--color-danger);
+}
+.total-row-grand td {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    border-top: 2px solid #cbd5e1 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+.total-row-grand .total-row-label {
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.total-row-grand .total-row-value {
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+.total-row-remaining td {
+    padding-top: 8px !important;
+    border-top: 1px solid var(--border-soft) !important;
+}
+.total-row-remaining .total-row-label {
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+.total-row-remaining .total-row-value {
+    font-weight: 800;
+    font-size: 1.125rem;
+}
+.total-row-dashed td {
+    padding-bottom: 8px !important;
+    border-bottom: 1px dashed var(--border-soft) !important;
+}
+
+/* ── Currency (universal) ─────────────────────────────────── */
+.currency {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Invoice Footer (screen) ──────────────────────────────── */
+.invoice-footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+.invoice-footer p {
+    margin: 0 0 4px;
+}
+
+/* ============================================================
+   UNIVERSAL PRINT ENGINE v2.0
+   Table-first print rendering system for all SIPEDIS modules.
+   ⚠️  DO NOT modify frozen thermal selectors without testing
+       invoices/show.blade.php print workflow.
+   ============================================================ */
+
+/* ── Print Engine ─────────────────────────────────────────── */
 @media print {
-    body.print-a4 { @page { size: A4; margin: 20mm; } }
-    body.print-letter { @page { size: letter; margin: 20mm; } }
-    body.print-thermal58 { @page { size: 58mm auto; margin: 0; } }
-    body.print-thermal80 { @page { size: 80mm auto; margin: 0; } }
 
-    body.print-thermal58 .max-w-4xl, body.print-thermal80 .max-w-4xl {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 10px !important;
+    /* ── 1. Print Reset ───────────────────────────────────── */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
     }
-    
-    body.print-thermal58 * {
-        font-size: 10px !important;
-        line-height: 1.2 !important;
-    }
-    
-    body.print-thermal80 * {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
         font-size: 12px !important;
-        line-height: 1.2 !important;
+        line-height: 1.4 !important;
+        font-family: Arial, Helvetica, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
-    
-    /* Remove padding/borders for thermal */
-    body.print-thermal58 .p-12, body.print-thermal80 .p-12 {
+
+    /* ── 2. Dashboard Chrome Destruction ───────────────────── */
+    aside,
+    header,
+    footer,
+    nav,
+    .sidebar,
+    .navbar,
+    .no-print,
+    .print\:hidden,
+    .print-hide-icon,
+    #payment-section {
+        display: none !important;
+    }
+
+    /* ── 3. Content Isolation ─────────────────────────────── */
+    body * {
+        visibility: hidden;
+    }
+    .print-document,
+    .print-document * {
+        visibility: visible;
+    }
+    .print-document {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+    }
+
+    /* ── 4. Print-Safe Rendering ──────────────────────────── */
+    /* Remove screen-only visual styles */
+    .print-document .rounded-xl,
+    .print-document .invoice-total-card {
+        border-radius: 0 !important;
+        border: 1px solid #d1d5db !important;
+        background-color: #f9fafb !important;
+    }
+    .print-document .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* ── 5. Invoice Layout Tables — Print ─────────────────── */
+    .invoice-layout-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    .invoice-layout-table td {
+        vertical-align: top !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    /* ── 6. Invoice Product Table — Print ─────────────────── */
+    .invoice-product-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+    }
+    .invoice-product-table th {
+        background-color: #f1f5f9 !important;
+        color: #374151 !important;
+        font-size: 10px !important;
+        padding: 8px 8px !important;
+        vertical-align: middle !important;
+        line-height: 1.4 !important;
+        border-top: 2px solid #1f2937 !important;
+        border-bottom: 2px solid #1f2937 !important;
+    }
+    .invoice-product-table td {
+        padding: 8px 8px !important;
+        vertical-align: middle !important;
+        line-height: 1.4 !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        font-size: 11px !important;
+        color: #000 !important;
+    }
+    .invoice-product-table tbody tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* ── 7. Invoice Totals — Print ────────────────────────── */
+    .invoice-total-wrapper {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-top: 0 !important;
+    }
+    .invoice-total-anchor {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    .invoice-total-anchor td {
+        border: none !important;
+        padding: 0 !important;
+    }
+    .invoice-total-anchor .spacer-col {
+        width: 55% !important;
+    }
+    .invoice-total-anchor .total-col {
+        width: 45% !important;
+    }
+    .invoice-total-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+    }
+    .invoice-total-table td {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+        vertical-align: middle !important;
+        line-height: 1.4 !important;
+        border: none !important;
+        color: #000 !important;
+    }
+    .total-section-header {
+        font-size: 9px !important;
+        color: #374151 !important;
+        border-bottom: 1px solid #9ca3af !important;
+        padding-bottom: 6px !important;
+    }
+    .total-row-label { color: #374151 !important; }
+    .total-row-value { color: #000 !important; font-weight: 700 !important; }
+    .total-row-warning .total-row-label,
+    .total-row-warning .total-row-value { color: #92400e !important; }
+    .total-row-success .total-row-label,
+    .total-row-success .total-row-value { color: #065f46 !important; }
+    .total-row-danger .total-row-label,
+    .total-row-danger .total-row-value  { color: #991b1b !important; }
+    .total-row-grand td {
+        border-top: 2px solid #000 !important;
+        border-bottom: 2px solid #000 !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+    }
+    .total-row-grand .total-row-label {
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        color: #000 !important;
+    }
+    .total-row-grand .total-row-value {
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        color: #000 !important;
+    }
+    .total-row-remaining td {
+        border-top: 1px solid #9ca3af !important;
+        padding-top: 6px !important;
+    }
+    .total-row-remaining .total-row-label {
+        font-size: 11px !important;
+        font-weight: 800 !important;
+    }
+    .total-row-remaining .total-row-value {
+        font-size: 14px !important;
+        font-weight: 800 !important;
+    }
+    .total-row-dashed td {
+        border-bottom: 1px dashed #9ca3af !important;
+        padding-bottom: 6px !important;
+    }
+
+    /* ── 8. Invoice Header/Meta/Footer — Print ────────────── */
+    .invoice-header {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        border-bottom: 2px solid #1f2937 !important;
+    }
+    .invoice-meta {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    .invoice-footer {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-top: 40px !important;
+        font-size: 10px !important;
+        color: #6b7280 !important;
+        border-top: 1px dashed #9ca3af !important;
+        padding-top: 16px !important;
+        text-align: center !important;
+    }
+
+    /* ── 9. Currency — Print ──────────────────────────────── */
+    .currency {
+        white-space: nowrap !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    /* ── 10. Typography Standard ───────────────────────────── */
+    h1, h2, h3 {
+        margin-bottom: 8px;
+        color: #000 !important;
+    }
+
+    /* ── 11. Table Engine ──────────────────────────────────── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    thead {
+        display: table-header-group;
+    }
+    tfoot {
+        display: table-footer-group;
+    }
+
+    /* ── 12. A4 / Letter Page Sizes ────────────────────────── */
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+    @page pageA4 {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+    body.print-a4 {
+        page: pageA4;
+    }
+    body.print-a4 .print-document {
+        font-size: 12pt;
+    }
+    @page pageLetter {
+        size: letter portrait;
+        margin: 15mm;
+    }
+    body.print-letter {
+        page: pageLetter;
+    }
+    body.print-letter .print-document {
+        font-size: 12pt;
+    }
+
+    /* ── 13. Thermal 80mm ─────────────────────────────────── */
+    @page pageThermal80 {
+        size: 80mm auto;
+        margin: 0;
+    }
+    body.print-thermal80 {
+        page: pageThermal80;
+    }
+    body.print-thermal80 .print-document {
+        width: 76mm;
+        left: 2mm;
+        top: 2mm;
+        padding: 4px !important;
+        font-size: 11px;
+        color: #000;
+    }
+    body.print-thermal80 .invoice-layout-table td {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    body.print-thermal80 .invoice-total-anchor .spacer-col {
+        display: none !important;
+    }
+    body.print-thermal80 .invoice-total-anchor .total-col {
+        width: 100% !important;
+    }
+    body.print-thermal80 .invoice-total-card {
+        padding: 4px !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    body.print-thermal80 table th,
+    body.print-thermal80 table td {
+        padding: 4px 2px !important;
+        font-size: 10px;
+    }
+    body.print-thermal80 h2 {
+        font-size: 16px !important;
+    }
+    body.print-thermal80 img {
+        height: 30px !important;
+    }
+
+    /* ── 14. Thermal 58mm ─────────────────────────────────── */
+    @page pageThermal58 {
+        size: 58mm auto;
+        margin: 0;
+    }
+    body.print-thermal58 {
+        page: pageThermal58;
+    }
+    body.print-thermal58 .print-document {
+        width: 54mm;
+        left: 2mm;
+        top: 2mm;
+        padding: 2px !important;
+        font-size: 10px;
+        color: #000;
+    }
+    body.print-thermal58 .invoice-layout-table td {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+    body.print-thermal58 .invoice-total-anchor .spacer-col {
+        display: none !important;
+    }
+    body.print-thermal58 .invoice-total-anchor .total-col {
+        width: 100% !important;
+    }
+    body.print-thermal58 .invoice-total-card {
+        padding: 2px !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    body.print-thermal58 table th,
+    body.print-thermal58 table td {
+        padding: 2px 1px !important;
+        font-size: 9px;
+    }
+    body.print-thermal58 h2 {
+        font-size: 14px !important;
+    }
+    body.print-thermal58 img {
+        height: 24px !important;
+    }
+    body.print-thermal58 .tracking-widest {
+        letter-spacing: normal !important;
+    }
+    body.print-thermal58 .invoice-status-badge {
+        letter-spacing: normal !important;
+    }
+
+    /* ── 15. Frozen Thermal Badge Selectors ────────────────── */
+    /* ⚠️ DO NOT rename — targeted by invoices/show.blade.php */
+    body.print-thermal80 span.bg-theme-success,
+    body.print-thermal58 span.bg-theme-success,
+    body.print-thermal80 span.bg-yellow-100,
+    body.print-thermal58 span.bg-yellow-100,
+    body.print-thermal80 span.bg-theme-error,
+    body.print-thermal58 span.bg-theme-error {
+        background: none !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        padding: 2px 4px !important;
+        font-size: 8px !important;
+    }
+    body.print-thermal80 .bg-theme-bg,
+    body.print-thermal58 .bg-theme-bg {
+        background: transparent !important;
         padding: 0 !important;
     }
 }

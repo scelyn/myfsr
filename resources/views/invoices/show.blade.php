@@ -2,400 +2,273 @@
     <x-slot name="title">Invoice #{{ $invoice->invoice_number }}</x-slot>
     <x-slot name="header">Detail Invoice</x-slot>
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        <!-- Actions -->
-        <div class="flex items-center justify-between">
-            <a href="{{ route('orders.index') }}" class="text-sm font-medium text-theme-text2 hover:text-emerald-600 flex items-center gap-2">
+    <div class="max-w-5xl mx-auto content-section">
+
+        <div class="flex items-center justify-between print:hidden">
+            <a href="{{ route('orders.index') }}" class="back-link" style="margin-bottom:0;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 Kembali ke Pesanan
             </a>
-            
+
             <div class="flex items-center gap-3 relative" x-data="{ printOpen: false }">
-                <!-- Dropdown Cetak -->
-                <button @click="printOpen = !printOpen" @click.away="printOpen = false" class="px-4 py-2 bg-theme-sidebar text-theme-text1 hover:bg-theme-border rounded-xl text-sm font-bold flex items-center gap-2 transition-colors">
+                <button @click="printOpen = !printOpen" @click.away="printOpen = false" class="btn btn-ghost">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     Cetak Nota
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
-                
-                <div x-show="printOpen" x-transition.opacity class="absolute right-[120px] top-12 w-48 bg-theme-card border border-theme-border rounded-xl shadow-lg z-50 overflow-hidden" style="display: none;">
-                    <a href="{{ URL::signedRoute('invoices.pdf', $invoice->id) }}" target="_blank" class="block px-4 py-3 text-sm text-theme-text1 hover:bg-theme-sidebar border-b border-theme-border">
-                        Unduh PDF
-                    </a>
-                    <button onclick="printNota('a4')" class="w-full text-left px-4 py-3 text-sm text-theme-text1 hover:bg-theme-sidebar border-b border-theme-border">
-                        Print Ukuran A4
-                    </button>
-                    <button onclick="printNota('letter')" class="w-full text-left px-4 py-3 text-sm text-theme-text1 hover:bg-theme-sidebar border-b border-theme-border">
-                        Print Ukuran Letter
-                    </button>
-                    <button onclick="printNota('thermal80')" class="w-full text-left px-4 py-3 text-sm text-theme-text1 hover:bg-theme-sidebar border-b border-theme-border">
-                        Print Thermal 80mm
-                    </button>
-                    <button onclick="printNota('thermal58')" class="w-full text-left px-4 py-3 text-sm text-theme-text1 hover:bg-theme-sidebar">
-                        Print Thermal 58mm
-                    </button>
+                <div x-show="printOpen" x-transition.opacity class="absolute right-0 top-full mt-1 w-48 card shadow-elevated z-50 overflow-hidden py-1" style="display:none;">
+                    <a href="{{ URL::signedRoute('invoices.pdf', $invoice->id) }}" target="_blank" class="block px-4 py-2.5 text-sm hover:bg-[#f0f4f8] transition-colors" style="color:var(--text-primary); border-bottom:1px solid var(--border-soft);">Unduh PDF</a>
+                    <button onclick="printNota('a4')"      class="w-full text-left px-4 py-2.5 text-sm hover:bg-[#f0f4f8] transition-colors" style="color:var(--text-primary);">Print Ukuran A4</button>
+                    <button onclick="printNota('letter')"  class="w-full text-left px-4 py-2.5 text-sm hover:bg-[#f0f4f8] transition-colors" style="color:var(--text-primary);">Print Ukuran Letter</button>
+                    <button onclick="printNota('thermal80')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-[#f0f4f8] transition-colors" style="color:var(--text-primary);">Print Thermal 80mm</button>
+                    <button onclick="printNota('thermal58')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-[#f0f4f8] transition-colors" style="color:var(--text-primary);">Print Thermal 58mm</button>
                 </div>
-                
+
                 @php
-                    $waText = "Halo Bapak/Ibu " . $invoice->customer->nama_pemilik . " (" . $invoice->customer->nama_toko . "),\n\n";
-                    $waText .= "Berikut invoice terbaru Anda.\n\n";
-                    $waText .= "Invoice:\n" . $invoice->invoice_number . "\n\n";
-                    $waText .= "Belanja Hari Ini:\nRp " . number_format($invoice->total_amount, 0, ',', '.') . "\n\n";
-                    if ($previous_tunggakan > 0) {
-                        $waText .= "Tunggakan Sebelumnya:\nRp " . number_format($previous_tunggakan, 0, ',', '.') . "\n\n";
-                    }
-                    $waText .= "TOTAL TAGIHAN:\nRp " . number_format($invoice->total_amount + $previous_tunggakan, 0, ',', '.') . "\n\n";
-                    $waText .= "Link Invoice:\n" . URL::signedRoute('invoices.pdf', $invoice->id) . "\n\n";
-                    $waText .= "Terima kasih.";
-                    $waUrl = "https://wa.me/" . preg_replace('/[^0-9]/', '', $invoice->customer->no_whatsapp) . "?text=" . urlencode($waText);
+                    $waText  = "Halo Bapak/Ibu " . $invoice->customer->nama_pemilik . " (" . $invoice->customer->nama_toko . "),\n\n";
+                    $waText .= "Berikut invoice terbaru Anda.\n\nInvoice:\n" . $invoice->invoice_number . "\n\n";
+                    $waText .= "Belanja Hari Ini:\nRp " . \App\Helpers\NumberHelper::format($invoice->total_amount) . "\n\n";
+                    if ($previous_tunggakan > 0) { $waText .= "Tunggakan Sebelumnya:\nRp " . \App\Helpers\NumberHelper::format($previous_tunggakan) . "\n\n"; }
+                    $waText .= "TOTAL TAGIHAN:\nRp " . \App\Helpers\NumberHelper::format($invoice->total_amount + $previous_tunggakan) . "\n\n";
+                    $waText .= "Link Invoice:\n" . URL::signedRoute('invoices.pdf', $invoice->id) . "\n\nTerima kasih.";
+                    $waUrl   = "https://wa.me/" . preg_replace('/[^0-9]/', '', $invoice->customer->no_whatsapp) . "?text=" . urlencode($waText);
                 @endphp
-                <a href="{{ $waUrl }}" target="_blank" class="px-4 py-2 bg-theme-border text-theme-text1 hover:bg-theme-text2 hover:text-theme-sidebar rounded-xl text-sm font-bold flex items-center gap-2 shadow-md shadow-sm transition-colors">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                <a href="{{ $waUrl }}" target="_blank" class="btn btn-soft">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
                     Share WA
                 </a>
+
+                {{-- Cross-link: Invoice → Receivable --}}
+                @if($invoice->remaining_amount > 0 && $invoice->status !== 'paid')
+                <a href="{{ route('receivables.show', $invoice) }}" class="btn btn-ghost">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    Lihat di Piutang
+                </a>
+                @endif
             </div>
         </div>
 
-        <!-- Invoice Paper -->
-        <div class="bg-theme-card p-12 rounded-2xl border border-slate-50 shadow-md shadow-sm print:shadow-none print:border-none print:p-0">
+        <x-print-document size="a4" class="card shadow-card p-8">
             @if($previous_tunggakan > 0)
-            <div class="mb-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl print:hidden flex items-start gap-3">
-                <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <p class="text-sm text-amber-500 font-medium">⚠ Customer memiliki tunggakan sebelumnya sebesar <span class="font-bold">Rp {{ number_format($previous_tunggakan, 0, ',', '.') }}</span></p>
+            <div class="mb-6 p-4 rounded-xl flex items-start gap-3 print:hidden"
+                 style="background-color:var(--color-warning-bg); border:1px solid rgba(245,158,11,0.25);">
+                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--color-warning);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <p class="text-sm font-medium" style="color:var(--color-warning);">Customer memiliki tunggakan sebesar <span class="font-bold">Rp {{ \App\Helpers\NumberHelper::format($previous_tunggakan) }}</span></p>
             </div>
             @endif
 
-            <!-- Header -->
-            <div class="flex justify-between items-start border-b border-theme-border pb-8 mb-8">
-                <div>
-                    <img src="{{ asset('images/logo.png') }}" alt="MyFSR Logo" class="h-12 w-auto object-contain mb-2 print:h-10">
-                    <p class="text-sm text-theme-text2">Enterprise Management System</p>
-                </div>
-                <div class="text-right">
-                    <h2 class="text-2xl font-black text-theme-text1">INVOICE</h2>
-                    <p class="text-sm font-bold text-theme-text2 mt-1">#{{ $invoice->invoice_number }}</p>
-                    
-                    @if($invoice->status == 'paid')
-                        <span class="inline-block mt-4 px-4 py-1.5 bg-theme-success/40 text-emerald-600 text-xs font-black rounded-full uppercase tracking-widest border border-emerald-200">LUNAS</span>
-                    @elseif($invoice->status == 'partial')
-                        <span class="inline-block mt-4 px-4 py-1.5 bg-yellow-100 text-yellow-700 text-xs font-black rounded-full uppercase tracking-widest border border-yellow-200">DIBAYAR SEBAGIAN</span>
-                    @else
-                        <span class="inline-block mt-4 px-4 py-1.5 bg-theme-error/40 text-rose-600 text-xs font-black rounded-full uppercase tracking-widest border border-red-200">BELUM DIBAYAR</span>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Info -->
-            <div class="grid grid-cols-2 gap-12 mb-12">
-                <div>
-                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-3">Ditagihkan Kepada:</p>
-                    <h3 class="text-lg font-bold text-theme-text1">{{ $invoice->customer->nama_toko }}</h3>
-                    <p class="text-sm text-theme-text1 mt-1">{{ $invoice->customer->nama_pemilik }}</p>
-                    <p class="text-sm text-theme-text1">{{ $invoice->customer->alamat_pasar }}</p>
-                    <p class="text-sm text-theme-text1 mt-2 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        {{ $invoice->customer->no_whatsapp }}
-                    </p>
-                </div>
-                <div class="grid grid-cols-2 gap-6 bg-theme-bg p-6 rounded-2xl">
-                    <div>
-                        <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-1">Tanggal Order</p>
-                        <p class="text-sm font-bold text-theme-text1">{{ $invoice->order->order_date->format('d/m/Y') }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-1">Jatuh Tempo</p>
-                        <p class="text-sm font-bold text-theme-text1">{{ $invoice->due_date->format('d/m/Y') }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-1">ID Order</p>
-                        <p class="text-sm font-bold text-theme-text1">{{ $invoice->order->order_number }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Items -->
-            <table class="w-full text-left mb-8">
-                <thead>
-                    <tr class="border-b-2 border-theme-border">
-                        <th class="py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest">Deskripsi Barang</th>
-                        <th class="py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-center">Qty</th>
-                        <th class="py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-right">Harga Satuan</th>
-                        <th class="py-4 text-[10px] font-black text-theme-text2 uppercase tracking-widest text-right">Total</th>
+            {{-- ═══════════════════════════════════════════════════
+                 SECTION 1: INVOICE HEADER (TABLE-BASED)
+                 ═══════════════════════════════════════════════════ --}}
+            <div class="invoice-header" style="padding-bottom:1.5rem; margin-bottom:2rem; border-bottom:2px solid var(--border-soft);">
+                <table class="invoice-layout-table">
+                    <tr>
+                        <td style="width:50%; vertical-align:top;">
+                            <img src="{{ asset('images/logo.png') }}" alt="SIPEDIS" style="height:48px; width:auto; object-fit:contain; display:block; margin-bottom:6px;">
+                            <p style="font-size:0.8125rem; color:var(--text-muted); margin:0;">Enterprise Management System</p>
+                        </td>
+                        <td style="width:50%; text-align:right; vertical-align:top;">
+                            <h2 style="font-size:1.5rem; font-weight:900; color:var(--text-primary); margin:0;">INVOICE</h2>
+                            <p style="font-size:0.875rem; font-weight:700; color:var(--text-secondary); margin-top:4px;">#{{ $invoice->invoice_number }}</p>
+                            {{-- ⚠️ HIGH-RISK: bg-theme-success / bg-yellow-100 / bg-theme-error class names targeted by thermal print CSS --}}
+                            @if($invoice->status == 'paid')
+                                <span class="invoice-status-badge bg-theme-success" style="display:inline-block; margin-top:12px; padding:4px 12px; font-size:0.6875rem; font-weight:800; border-radius:99px; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-success); border:1px solid var(--color-success-border);">LUNAS</span>
+                            @elseif($invoice->status == 'partial')
+                                <span class="invoice-status-badge bg-yellow-100" style="display:inline-block; margin-top:12px; padding:4px 12px; font-size:0.6875rem; font-weight:800; border-radius:99px; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-warning);">DIBAYAR SEBAGIAN</span>
+                            @else
+                                <span class="invoice-status-badge bg-theme-error" style="display:inline-block; margin-top:12px; padding:4px 12px; font-size:0.6875rem; font-weight:800; border-radius:99px; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-danger);">BELUM DIBAYAR</span>
+                            @endif
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @foreach($invoice->order->items as $item)
-                        <tr>
-                            <td class="py-4">
-                                <p class="text-sm font-bold text-theme-text1">{{ $item->product_name }}</p>
-                            </td>
-                            <td class="py-4 text-center">
-                                <p class="text-sm font-medium text-theme-text1">{{ floatval($item->quantity) }} <span class="text-xs text-theme-text2">{{ $item->product_unit }}</span></p>
-                            </td>
-                            <td class="py-4 text-right">
-                                <p class="text-sm font-medium text-theme-text1">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</p>
-                            </td>
-                            <td class="py-4 text-right">
-                                <p class="text-sm font-black text-theme-text1">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <!-- Summary -->
-            <div class="flex flex-col items-end border-t border-theme-border pt-8 mt-8">
-                <div class="w-full max-w-[320px]">
-                    <h4 class="text-[10px] font-black text-theme-text2 uppercase tracking-widest mb-4 border-b border-theme-border pb-2 text-center">Rincian Tagihan Customer</h4>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-theme-text1">Belanja Hari Ini</span>
-                            <span class="text-sm font-bold text-theme-text1">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
-                        </div>
-
-                        @if($previous_tunggakan > 0)
-                        <div class="flex justify-between items-center pb-2 border-b border-dashed border-slate-300">
-                            <span class="text-sm font-medium text-theme-warningText">Tunggakan Sebelumnya</span>
-                            <span class="text-sm font-bold text-theme-warningText">Rp {{ number_format($previous_tunggakan, 0, ',', '.') }}</span>
-                        </div>
-                        @endif
-                        
-                        <div class="flex justify-between items-center py-4 border-t-2 border-theme-border mt-4">
-                            <span class="text-base font-black text-theme-text1">TOTAL TAGIHAN CUSTOMER</span>
-                            <span class="text-xl font-black text-theme-text1">Rp {{ number_format($invoice->total_amount + $previous_tunggakan, 0, ',', '.') }}</span>
-                        </div>
-
-                        @if($invoice->paid_amount > 0)
-                            <div class="flex justify-between items-center text-emerald-500 mt-2 text-sm font-medium">
-                                <span>Sudah Dibayar (Nota Ini)</span>
-                                <span>- Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-t border-theme-border mt-2">
-                                <span class="text-base font-black text-rose-600">SISA TAGIHAN (Nota Ini)</span>
-                                <span class="text-xl font-black text-rose-600">Rp {{ number_format($invoice->remaining_amount, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
+                </table>
             </div>
-            
-            <div class="mt-16 text-center text-sm text-theme-text2">
+
+            {{-- ═══════════════════════════════════════════════════
+                 SECTION 2: CUSTOMER + META INFO (TABLE-BASED)
+                 ═══════════════════════════════════════════════════ --}}
+            <div class="invoice-meta" style="margin-bottom:2rem;">
+                <table class="invoice-layout-table">
+                    <tr>
+                        <td style="width:55%; vertical-align:top; padding-right:20px;">
+                            <p class="form-label" style="margin-bottom:6px;">Ditagihkan Kepada:</p>
+                            <p style="font-size:1.125rem; font-weight:700; color:var(--text-primary); margin:0 0 4px;">{{ $invoice->customer->nama_toko }}</p>
+                            <p style="font-size:0.875rem; color:var(--text-secondary); margin:0 0 2px;">{{ $invoice->customer->nama_pemilik }}</p>
+                            <p style="font-size:0.875rem; color:var(--text-secondary); margin:0 0 8px;">{{ $invoice->customer->alamat_pasar }}</p>
+                            <p style="font-size:0.875rem; color:var(--text-secondary); margin:0; display:flex; align-items:center; gap:6px;">
+                                <svg class="print-hide-icon" style="width:16px; height:16px; flex-shrink:0;" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+                                {{ $invoice->customer->no_whatsapp }}
+                            </p>
+                        </td>
+                        <td style="width:45%; vertical-align:top;">
+                            <div style="background-color:var(--bg-surface); border:1px solid var(--border-soft); border-radius:12px; padding:1.25rem;">
+                                <table class="invoice-layout-table">
+                                    <tr>
+                                        <td style="width:50%; vertical-align:top; padding-bottom:12px;">
+                                            <p class="form-label" style="margin-bottom:4px;">Tanggal Order</p>
+                                            <p style="font-weight:600; font-size:0.875rem; color:var(--text-primary); margin:0;">{{ $invoice->order->order_date->format('d/m/Y') }}</p>
+                                        </td>
+                                        <td style="width:50%; vertical-align:top; padding-bottom:12px;">
+                                            <p class="form-label" style="margin-bottom:4px;">Jatuh Tempo</p>
+                                            <p style="font-weight:600; font-size:0.875rem; color:var(--text-primary); margin:0;">{{ $invoice->due_date->format('d/m/Y') }}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="vertical-align:top;">
+                                            <p class="form-label" style="margin-bottom:4px;">ID Order</p>
+                                            <p style="font-weight:600; font-size:0.875rem; color:var(--text-primary); margin:0;">{{ $invoice->order->order_number }}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            {{-- ═══════════════════════════════════════════════════
+                 SECTION 3: PRODUCT TABLE (FIXED LAYOUT)
+                 ═══════════════════════════════════════════════════ --}}
+            <div class="invoice-items" style="margin-bottom:2rem;">
+                <table class="invoice-product-table">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--border-soft);">
+                            <th class="col-no">No</th>
+                            <th class="col-desc">Deskripsi Barang</th>
+                            <th class="col-qty">Qty</th>
+                            <th class="col-price">Harga Satuan</th>
+                            <th class="col-subtotal">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($invoice->order->items as $item)
+                            <tr style="border-bottom:1px solid var(--border-soft);">
+                                <td class="col-no">{{ $loop->iteration }}</td>
+                                <td class="col-desc" style="font-weight:600; color:var(--text-primary);">{{ $item->product_name }}</td>
+                                <td class="col-qty" style="color:var(--text-primary);">{{ floatval($item->quantity) }} <span style="font-size:0.75rem; color:var(--text-muted);">{{ $item->product_unit }}</span></td>
+                                <td class="col-price currency" style="color:var(--text-secondary);">Rp {{ \App\Helpers\NumberHelper::format($item->unit_price) }}</td>
+                                <td class="col-subtotal currency" style="font-weight:600; color:var(--text-primary);">Rp {{ \App\Helpers\NumberHelper::format($item->subtotal) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- ═══════════════════════════════════════════════════
+                 SECTION 4: TOTALS (TABLE-BASED, ZERO OVERLAP)
+                 ═══════════════════════════════════════════════════ --}}
+            <div class="invoice-total-wrapper">
+                <table class="invoice-total-anchor">
+                    <tr>
+                        <td class="spacer-col"></td>
+                        <td class="total-col">
+                            <div style="background-color:var(--bg-surface); border:1px solid var(--border-soft); border-radius:12px; padding:1.25rem;" class="invoice-total-card">
+                                <table class="invoice-total-table">
+                                    <tr>
+                                        <td colspan="2" class="total-section-header">Rincian Tagihan</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-col total-row-label">Belanja Hari Ini</td>
+                                        <td class="value-col total-row-value currency">Rp {{ \App\Helpers\NumberHelper::format($invoice->total_amount) }}</td>
+                                    </tr>
+                                    @if($previous_tunggakan > 0)
+                                    <tr class="total-row-warning total-row-dashed">
+                                        <td class="label-col total-row-label">Tunggakan Sebelumnya</td>
+                                        <td class="value-col total-row-value currency">Rp {{ \App\Helpers\NumberHelper::format($previous_tunggakan) }}</td>
+                                    </tr>
+                                    @endif
+                                    <tr class="total-row-grand">
+                                        <td class="label-col total-row-label">Total Tagihan</td>
+                                        <td class="value-col total-row-value currency">Rp {{ \App\Helpers\NumberHelper::format($invoice->total_amount + $previous_tunggakan) }}</td>
+                                    </tr>
+                                    @if($invoice->paid_amount > 0)
+                                    <tr class="total-row-success">
+                                        <td class="label-col total-row-label">Sudah Dibayar</td>
+                                        <td class="value-col total-row-value currency">- Rp {{ \App\Helpers\NumberHelper::format($invoice->paid_amount) }}</td>
+                                    </tr>
+                                    <tr class="total-row-remaining {{ $invoice->remaining_amount > 0 ? 'total-row-danger' : 'total-row-success' }}">
+                                        <td class="label-col total-row-label">Sisa Tagihan</td>
+                                        <td class="value-col total-row-value currency">Rp {{ \App\Helpers\NumberHelper::format($invoice->remaining_amount) }}</td>
+                                    </tr>
+                                    @endif
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            {{-- ═══════════════════════════════════════════════════
+                 SECTION 5: FOOTER
+                 ═══════════════════════════════════════════════════ --}}
+            <div class="invoice-footer">
                 <p>Terima kasih atas kepercayaannya.</p>
                 <p>Pembayaran dapat ditransfer ke Rekening BCA: 1234567890 a.n MyFSR Semesta</p>
             </div>
-        </div>
+        </x-print-document>
     </div>
 
-    <!-- Print Styles -->
-    <style>
-        @media print {
-            /* Hide UI components globally */
-            header, nav, button, a, #payment-section, .print\:hidden {
-                display: none !important;
-            }
-            body * {
-                visibility: hidden;
-            }
-            .print\:shadow-none, .print\:shadow-none * {
-                visibility: visible;
-            }
-            .print\:shadow-none {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 0;
-                border: none !important;
-                box-shadow: none !important;
-            }
-
-            /* A4 Print Layout */
-            body.print-a4 @page { size: A4 portrait; margin: 15mm; }
-            body.print-a4 .print\:shadow-none { font-size: 12pt; }
-            
-            /* Letter Print Layout */
-            body.print-letter @page { size: letter portrait; margin: 15mm; }
-            body.print-letter .print\:shadow-none { font-size: 12pt; }
-
-            /* Thermal 80mm Print Layout */
-            body.print-thermal80 @page { size: 80mm auto; margin: 0; }
-            body.print-thermal80 .print\:shadow-none {
-                width: 76mm; /* leaving 2mm margin on sides */
-                left: 2mm;
-                top: 2mm;
-                font-size: 11px;
-                color: #000;
-            }
-            body.print-thermal80 table th, body.print-thermal80 table td {
-                padding: 4px 2px !important;
-                font-size: 10px;
-            }
-            body.print-thermal80 h2 { font-size: 16px !important; }
-            body.print-thermal80 h3 { font-size: 14px !important; }
-            body.print-thermal80 .text-xl { font-size: 14px !important; }
-            body.print-thermal80 .grid-cols-2 { grid-template-columns: 1fr; gap: 8px; }
-            body.print-thermal80 img { height: 30px !important; margin-bottom: 5px; }
-
-            /* Thermal 58mm Print Layout */
-            body.print-thermal58 @page { size: 58mm auto; margin: 0; }
-            body.print-thermal58 .print\:shadow-none {
-                width: 54mm; /* leaving 2mm margin on sides */
-                left: 2mm;
-                top: 2mm;
-                font-size: 10px;
-                color: #000;
-            }
-            body.print-thermal58 table th, body.print-thermal58 table td {
-                padding: 2px 1px !important;
-                font-size: 9px;
-            }
-            body.print-thermal58 h2 { font-size: 14px !important; }
-            body.print-thermal58 h3 { font-size: 12px !important; }
-            body.print-thermal58 .text-xl { font-size: 12px !important; }
-            body.print-thermal58 .grid-cols-2 { grid-template-columns: 1fr; gap: 4px; }
-            body.print-thermal58 img { height: 24px !important; margin-bottom: 5px; }
-            body.print-thermal58 .tracking-widest { letter-spacing: normal !important; }
-            body.print-thermal58 .text-sm { font-size: 10px !important; }
-            
-            /* General thermal tweaks */
-            body.print-thermal80 .border-b, body.print-thermal58 .border-b,
-            body.print-thermal80 .border-t, body.print-thermal58 .border-t {
-                border-color: #000 !important;
-            }
-            body.print-thermal80 span.bg-theme-success, body.print-thermal58 span.bg-theme-success,
-            body.print-thermal80 span.bg-yellow-100, body.print-thermal58 span.bg-yellow-100,
-            body.print-thermal80 span.bg-theme-error, body.print-thermal58 span.bg-theme-error {
-                background: none !important;
-                color: #000 !important;
-                border: 1px solid #000 !important;
-                padding: 2px 4px !important;
-                font-size: 8px !important;
-            }
-            body.print-thermal80 .bg-theme-bg, body.print-thermal58 .bg-theme-bg {
-                background: transparent !important;
-                padding: 0 !important;
-            }
-            body.print-thermal80 .text-theme-text1, body.print-thermal58 .text-theme-text1,
-            body.print-thermal80 .text-theme-text2, body.print-thermal58 .text-theme-text2 {
-                color: #000 !important;
-            }
-        }
-    </style>
-
-    <!-- Payment Section -->
-    <div id="payment-section" class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto print:hidden">
-        
-        <!-- Form Pembayaran -->
-        <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm p-8">
-            <h3 class="text-lg font-black text-theme-text1 mb-6 flex items-center gap-2">
-                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div id="payment-section" class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-5xl mx-auto print:hidden">
+        <section class="card shadow-card p-6">
+            <h3 class="flex items-center gap-2 mb-5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--color-success);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Catat Pembayaran
             </h3>
-
-            @if(session('success'))
-                <div class="mb-6 p-4 bg-theme-success/20 text-emerald-600 rounded-xl text-sm font-bold border border-theme-success flex items-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="mb-6 p-4 bg-theme-error/20 text-rose-600 rounded-xl text-sm font-bold border border-theme-error flex items-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            @php
-                $totalPiutang = $invoice->customer->invoices()->where('status', '!=', 'paid')->sum('remaining_amount');
-            @endphp
+            @php $totalPiutang = $invoice->customer->invoices()->where('status', '!=', 'paid')->sum('remaining_amount'); @endphp
             @if($totalPiutang <= 0)
-                <div class="p-6 bg-theme-bg border border-theme-border rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-theme-success/40 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <p class="font-bold text-theme-text1">Semua Tagihan Sudah Lunas</p>
-                    <p class="text-xs text-theme-text2 mt-1">Tidak ada sisa piutang untuk customer ini.</p>
+                <div class="text-center py-10 rounded-xl" style="background-color:var(--color-success-bg); border:1px solid var(--color-success-border);">
+                    <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--color-success);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <p class="font-bold" style="color:var(--color-success);">Semua Tagihan Sudah Lunas</p>
                 </div>
             @else
-                <form action="{{ route('payments.store') }}" method="POST" class="space-y-5" x-data="{ amount: {{ $totalPiutang }} }">
+                {{-- ⚠️ CRITICAL: all hidden fields + x-model="amount" preserved --}}
+                <form action="{{ route('payments.store') }}" method="POST" class="space-y-4" x-data="{ amount: {{ $totalPiutang }} }">
                     @csrf
-                    <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
-                    <input type="hidden" name="payment_date" value="{{ date('Y-m-d') }}">
+                    <input type="hidden" name="invoice_id"     value="{{ $invoice->id }}">
+                    <input type="hidden" name="payment_date"   value="{{ date('Y-m-d') }}">
                     <input type="hidden" name="payment_method" value="cash">
-
                     <div>
-                        <label class="block text-xs font-black text-theme-text2 uppercase tracking-widest mb-2">Total Seluruh Piutang Customer</label>
-                        <div class="text-2xl font-black text-theme-text1">Rp {{ number_format($totalPiutang, 0, ',', '.') }}</div>
+                        <p class="form-label mb-1">Total Seluruh Piutang Customer</p>
+                        <p class="text-2xl font-black" style="color:var(--text-primary);">Rp {{ \App\Helpers\NumberHelper::format($totalPiutang) }}</p>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-theme-text2 uppercase tracking-widest mb-2">Nominal Uang Masuk</label>
+                    <div class="form-group">
+                        <label class="form-label">Nominal Uang Masuk</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <span class="text-theme-text2 font-bold">Rp</span>
-                            </div>
-                            <input 
-                                type="number" 
-                                name="amount" 
-                                x-model="amount"
-                                max="{{ $totalPiutang }}"
-                                class="w-full pl-12 pr-4 py-3 bg-theme-bg border border-theme-border text-theme-text1 rounded-xl text-lg font-black focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none shadow-md shadow-sm"
-                                required
-                            >
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:var(--text-muted);">Rp</span>
+                            <input type="number" name="amount" x-model="amount" max="{{ $totalPiutang }}" required class="form-input pl-9 text-lg font-black">
                         </div>
-                        <p class="text-[10px] font-bold text-theme-text2 mt-2">Maksimal: Rp {{ number_format($totalPiutang, 0, ',', '.') }}. Sistem otomatis mengalokasikan pembayaran ke nota terlama (FIFO).</p>
+                        <p class="text-xs" style="color:var(--text-muted);">Maks: Rp {{ \App\Helpers\NumberHelper::format($totalPiutang) }}. Sistem otomatis alokasi FIFO.</p>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-theme-text2 uppercase tracking-widest mb-2">Catatan (Opsional)</label>
-                        <input type="text" name="notes" placeholder="Misal: Cicilan ke-1" class="w-full px-4 py-3 bg-theme-card border border-theme-border text-theme-text1 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none shadow-md shadow-sm">
+                    <div class="form-group">
+                        <label class="form-label">Catatan (Opsional)</label>
+                        <input type="text" name="notes" placeholder="Misal: Cicilan ke-1" class="form-input">
                     </div>
-
-                    <button type="submit" class="w-full py-3.5 bg-theme-success hover:bg-emerald-700 text-theme-text1 font-black rounded-xl shadow-lg shadow-emerald-600/20 transition-all transform hover:-translate-y-0.5">
-                        SIMPAN PEMBAYARAN
-                    </button>
+                    <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">SIMPAN PEMBAYARAN</button>
                 </form>
             @endif
-        </div>
+        </section>
 
-        <!-- Histori Pembayaran -->
-        <div class="bg-theme-card rounded-2xl border border-theme-border shadow-md shadow-sm p-8">
-            <h3 class="text-lg font-black text-theme-text1 mb-6 flex items-center gap-2">
-                <svg class="w-5 h-5 text-theme-text2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Histori Pembayaran
-            </h3>
-
+        <section class="card shadow-card overflow-hidden">
+            <div class="card-header"><h3>Histori Pembayaran</h3></div>
             @if($invoice->payments->count() > 0)
-                <div class="space-y-4">
+                <div>
                     @foreach($invoice->payments()->latest()->get() as $payment)
-                        <div class="p-4 border border-theme-border bg-theme-bg rounded-2xl flex items-center justify-between">
+                        <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid var(--border-soft);">
                             <div>
-                                <p class="text-xs font-black text-theme-text2 uppercase tracking-widest mb-1">{{ $payment->payment_date->format('d M Y') }}</p>
-                                <p class="text-sm font-bold text-theme-text1">{{ $payment->payment_number }}</p>
-                                @if($payment->notes)
-                                    <p class="text-[10px] text-theme-text2 mt-1 italic">{{ $payment->notes }}</p>
-                                @endif
+                                <p class="form-label mb-0.5">{{ $payment->payment_date->format('d M Y') }}</p>
+                                <p class="text-sm font-semibold" style="color:var(--text-primary);">{{ $payment->payment_number }}</p>
+                                @if($payment->notes)<p class="text-xs italic mt-0.5" style="color:var(--text-muted);">{{ $payment->notes }}</p>@endif
                             </div>
-                            <div class="text-right">
-                                <p class="text-base font-black text-emerald-600">+ Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
-                            </div>
+                            <p class="font-black" style="color:var(--color-success);">+ Rp {{ \App\Helpers\NumberHelper::format($payment->amount) }}</p>
                         </div>
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-12">
-                    <div class="w-12 h-12 bg-theme-bg text-slate-300 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-                    </div>
-                    <p class="text-sm font-bold text-theme-text2">Belum ada riwayat pembayaran.</p>
-                </div>
+                <p class="text-center py-12 text-sm" style="color:var(--text-muted);">Belum ada riwayat pembayaran.</p>
             @endif
-        </div>
-
+        </section>
     </div>
 
+    {{-- ⚠️ HIGH-RISK: printNota() JS function — must be preserved exactly --}}
     @push('scripts')
     <script>
         function printNota(size) {

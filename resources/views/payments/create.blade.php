@@ -2,75 +2,89 @@
     <x-slot name="title">Input Pembayaran</x-slot>
     <x-slot name="header">Catat Cicilan / Pelunasan</x-slot>
 
-    <div class="max-w-3xl mx-auto">
-        <a href="{{ route('receivables.show', $receivable) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-theme-text2 hover:text-emerald-600 transition-colors mb-6 group">
-            <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            <span>Kembali ke Detail Piutang</span>
+    <div class="max-w-2xl">
+        <a href="{{ route('invoices.index') }}" class="back-link">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Kembali ke Daftar Invoice
         </a>
 
-        <div class="bg-theme-card rounded-2xl border border-slate-50 shadow-md shadow-sm overflow-hidden">
-            @php
-                $totalPiutang = $receivable->invoice->customer->invoices()->where('status', '!=', 'paid')->sum('remaining_amount');
-            @endphp
-            <div class="p-8 bg-theme-bg/50 border-b border-theme-border flex justify-between items-center">
-                <div>
-                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Membayar Untuk Customer</p>
-                    <h3 class="text-xl font-black text-theme-text1">{{ $receivable->invoice->customer->nama_toko }}</h3>
-                </div>
-                <div class="text-right">
-                    <p class="text-[10px] font-black text-theme-text2 uppercase tracking-widest">Total Seluruh Piutang</p>
-                    <div class="text-2xl font-black text-emerald-600">Rp {{ number_format($totalPiutang, 0, ',', '.') }}</div>
-                </div>
-            </div>
+        @php
+            $totalPiutang = $invoice->customer->invoices()->where('status', '!=', 'paid')->sum('remaining_amount');
+        @endphp
 
-            <form action="{{ route('payments.store') }}" method="POST" class="p-8 space-y-6">
-                @csrf
-                <input type="hidden" name="invoice_id" value="{{ $receivable->invoice->id }}">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black text-theme-text2 uppercase tracking-widest">Jumlah Bayar <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-4 flex items-center text-theme-text2 font-black text-sm">Rp</span>
-                            <input type="number" name="amount" value="{{ old('amount', $totalPiutang) }}" max="{{ $totalPiutang }}" 
-                                class="w-full pl-12 pr-4 py-4 bg-theme-bg border border-theme-border rounded-2xl text-xl font-black text-theme-text1 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all" required>
+        <form action="{{ route('payments.store') }}" method="POST">
+            @csrf
+            {{-- ⚠️ CRITICAL: invoice_id hidden field — controller dependency --}}
+            <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
+
+            <section class="card shadow-card overflow-hidden">
+                {{-- Customer header --}}
+                <div class="flex items-center justify-between p-5"
+                     style="background-color:var(--bg-surface); border-bottom:1px solid var(--border-soft);">
+                    <div>
+                        <p class="form-label mb-1">Membayar Untuk Customer</p>
+                        <h3 class="text-lg font-black" style="color:var(--text-primary);">{{ $invoice->customer->nama_toko }}</h3>
+                        <p class="text-sm" style="color:var(--text-secondary);">{{ $invoice->customer->nama_pemilik }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="form-label mb-1">Total Seluruh Piutang</p>
+                        <p class="text-2xl font-black" style="color:var(--color-danger);">Rp {{ \App\Helpers\NumberHelper::format($totalPiutang) }}</p>
+                        <p class="text-xs mt-0.5" style="color:var(--text-muted);">Otomatis FIFO</p>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="form-group">
+                            <label class="form-label">Jumlah Bayar <span style="color:var(--color-danger);">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:var(--text-muted);">Rp</span>
+                                <input type="number" name="amount"
+                                       value="{{ old('amount', $totalPiutang) }}"
+                                       max="{{ $totalPiutang }}" required
+                                       class="form-input pl-9 text-lg font-black {{ $errors->has('amount') ? 'error' : '' }}">
+                            </div>
+                            <p class="text-xs" style="color:var(--text-muted);">Sistem mengalokasikan ke nota terlama (FIFO)</p>
+                            @error('amount')<p class="text-xs" style="color:var(--color-danger);">{{ $message }}</p>@enderror
                         </div>
-                        <p class="text-[10px] font-bold text-theme-text2 mt-2">Sistem otomatis mengalokasikan pembayaran ke nota terlama (FIFO).</p>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Bayar <span style="color:var(--color-danger);">*</span></label>
+                            <input type="date" name="payment_date"
+                                   value="{{ old('payment_date', date('Y-m-d')) }}" required
+                                   class="form-input {{ $errors->has('payment_date') ? 'error' : '' }}">
+                            @error('payment_date')<p class="text-xs" style="color:var(--color-danger);">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Metode Pembayaran <span style="color:var(--color-danger);">*</span></label>
+                            <select name="payment_method" required class="form-input">
+                                <option value="cash"     {{ old('payment_method') == 'cash'     ? 'selected' : '' }}>Tunai / Cash</option>
+                                <option value="transfer" {{ old('payment_method') == 'transfer' ? 'selected' : '' }}>Transfer Bank</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">No. Referensi (Opsional)</label>
+                            <input type="text" name="reference_number"
+                                   value="{{ old('reference_number') }}"
+                                   placeholder="No. Resi Transfer"
+                                   class="form-input">
+                        </div>
                     </div>
-
-                    <div class="space-y-2">
-                        <label class="text-xs font-black text-theme-text2 uppercase tracking-widest">Tanggal Bayar <span class="text-red-500">*</span></label>
-                        <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" 
-                            class="w-full px-5 py-4 bg-theme-bg border border-theme-border rounded-2xl text-base font-bold text-theme-text1 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all" required>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-xs font-black text-theme-text2 uppercase tracking-widest">Metode Pembayaran <span class="text-red-500">*</span></label>
-                        <select name="payment_method" class="w-full px-5 py-4 bg-theme-bg border border-theme-border rounded-2xl text-base font-bold text-theme-text1 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all" required>
-                            <option value="cash">Tunai / Cash</option>
-                            <option value="transfer">Transfer Bank</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-xs font-black text-theme-text2 uppercase tracking-widest">No. Referensi (Opsional)</label>
-                        <input type="text" name="reference_number" placeholder="Misal: No. Resi Transfer" 
-                            class="w-full px-5 py-4 bg-theme-bg border border-theme-border rounded-2xl text-base font-bold text-theme-text1 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all">
+                    <div class="form-group">
+                        <label class="form-label">Catatan</label>
+                        <textarea name="notes" rows="3" placeholder="Catatan tambahan..."
+                                  class="form-input resize-none">{{ old('notes') }}</textarea>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-xs font-black text-theme-text2 uppercase tracking-widest">Catatan Pembayaran</label>
-                    <textarea name="notes" rows="3" placeholder="Tambahkan catatan jika perlu..." 
-                        class="w-full px-5 py-4 bg-theme-bg border border-theme-border rounded-2xl text-sm focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"></textarea>
-                </div>
-
-                <div class="pt-6 border-t border-slate-50 flex justify-end">
-                    <button type="submit" class="w-full md:w-auto px-12 py-4 bg-theme-success hover:bg-emerald-700 text-theme-text1 text-base font-black rounded-2xl shadow-xl shadow-emerald-200 transition-all transform hover:-translate-y-1 active:scale-95">
-                        SIMPAN PEMBAYARAN
+                <div class="px-6 py-4 flex justify-end gap-3"
+                     style="border-top:1px solid var(--border-soft); background-color:var(--bg-surface);">
+                    <a href="{{ route('invoices.index') }}" class="btn btn-ghost">Batal</a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Simpan Pembayaran
                     </button>
                 </div>
-            </form>
-        </div>
+            </section>
+        </form>
     </div>
 </x-admin-layout>

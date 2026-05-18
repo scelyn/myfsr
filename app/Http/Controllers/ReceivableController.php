@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Receivable;
+use App\Models\Invoice;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class ReceivableController extends Controller
 {
+    /**
+     * Outstanding Invoice Monitor.
+     *
+     * Receivable data is derived DIRECTLY from invoices.
+     * No separate receivable table is queried.
+     */
     public function index(Request $request)
     {
-        $query = Receivable::with(['customer', 'invoice'])->latest();
+        $query = Invoice::with('customer')
+            ->whereIn('status', ['unpaid', 'partial'])
+            ->where('remaining_amount', '>', 0);
 
+        // ── Filters ──────────────────────────────────────────
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -20,24 +29,40 @@ class ReceivableController extends Controller
             $query->where('customer_id', $request->customer_id);
         }
 
-        $receivables = $query->paginate(15)->withQueryString();
-        $customers = Customer::select('id', 'nama_toko')->orderBy('nama_toko')->get();
-        
-        $stats = \Illuminate\Support\Facades\Cache::remember('receivable_stats', 300, function () {
-            return [
-                'total_outstanding' => Receivable::where('status', '!=', 'paid')->sum('remaining_amount'),
-                'total_overdue' => Receivable::where('status', '!=', 'paid')->where('due_date', '<', now())->sum('remaining_amount'),
-                'count_unpaid' => Receivable::where('status', 'unpaid')->count(),
-            ];
-        });
+        $invoices = $query->orderBy('due_date', 'asc')
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('receivables.index', compact('receivables', 'customers', 'stats'));
+        $customers = Customer::select('id', 'nama_toko')->orderBy('nama_toko')->get();
+
+        // ── Live stats (no cache — always reflects payment state) ──
+        $stats = [
+            'total_outstanding' => Invoice::whereIn('status', ['unpaid', 'partial'])
+                ->where('remaining_amount', '>', 0)
+                ->sum('remaining_amount'),
+
+            'total_overdue' => Invoice::whereIn('status', ['unpaid', 'partial'])
+                ->where('remaining_amount', '>', 0)
+                ->where('due_date', '<', now()->toDateString())
+                ->sum('remaining_amount'),
+
+            'count_unpaid' => Invoice::whereIn('status', ['unpaid', 'partial'])
+                ->where('remaining_amount', '>', 0)
+                ->count(),
+        ];
+
+        return view('receivables.index', compact('invoices', 'customers', 'stats'));
     }
 
-    public function show(Receivable $receivable)
+    /**
+     * Receivable detail for a single invoice.
+     *
+     * Uses Invoice model binding — receivable IS the invoice.
+     */
+    public function show(Invoice $invoice)
     {
-        $receivable->load(['customer', 'invoice.items', 'payments']);
-        
-        return view('receivables.show', compact('receivable'));
+        $invoice->load(['customer', 'order.items.product', 'payments']);
+
+        return view('receivables.show', compact('invoice'));
     }
 }
